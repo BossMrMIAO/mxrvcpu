@@ -193,6 +193,30 @@ module mxrv_csr_reg (
                     CSR_MIP: begin
                         csr_rdata_o <= mip;
                     end
+                    CSR_MCYCLE: begin
+                        csr_rdata_o <= mcycle;
+                    end
+                    CSR_MCYCLEH: begin
+                        csr_rdata_o <= mcycleh;
+                    end
+                    CSR_MINSTRET: begin
+                        csr_rdata_o <= minstret;
+                    end
+                    CSR_MINSTRETH: begin
+                        csr_rdata_o <= CSR_MINSTRET;
+                    end
+                    CSR_MVENDORID: begin
+                        csr_rdata_o <= mvendorid;
+                    end
+                    CSR_MARCHID: begin
+                        csr_rdata_o <= marchid;
+                    end
+                    CSR_MIMPID: begin
+                        csr_rdata_o <= mimpid;
+                    end
+                    CSR_MHARTID: begin
+                        csr_rdata_o <= mhartid;
+                    end
                     default: begin
                         
                     end
