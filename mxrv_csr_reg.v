@@ -16,8 +16,9 @@ module mxrv_csr_reg (
     input[`CsrRegAddrBus] csr_addr_i,
     input   we_i,
     input[`RegBus]  csr_wdata_i,
-    output[`RegBus] csr_rdata_o
-
+    output reg[`RegBus] csr_rdata_o,
+    // 状态寄存器必要信号
+    input   inst_succ_flag
     );
 
     // 浮点累计异常
@@ -64,6 +65,8 @@ module mxrv_csr_reg (
     reg[`RegBus] mtimecmp;
     reg[`RegBus] msip;
 
+    
+    
 
     // 周期计数: 时钟，复位，cycle寄存器
     always @(posedge clk or negedge rst_n) begin
@@ -121,37 +124,37 @@ module mxrv_csr_reg (
         end else begin
             if (we_i == `Write) begin
                 case (csr_addr_i)
-                    CSR_FFLAGS: begin
+                    `CSR_FFLAGS: begin
                         fflags <= csr_wdata_i;
                     end
-                    CSR_FRM: begin
+                    `CSR_FRM: begin
                         frm <= csr_wdata_i;
                     end
-                    CSR_FCSR: begin
+                    `CSR_FCSR: begin
                         fcsr <= csr_wdata_i;
                     end
-                    CSR_MSTATUS: begin
+                    `CSR_MSTATUS: begin
                         mstatus <= csr_wdata_i;
                     end
-                    CSR_MIE: begin
+                    `CSR_MIE: begin
                         mie <= csr_wdata_i;
                     end
-                    CSR_MTVEC: begin
+                    `CSR_MTVEC: begin
                         mtvec <= csr_wdata_i;
                     end
-                    CSR_MSCRATCH: begin
+                    `CSR_MSCRATCH: begin
                         mscratch <= csr_wdata_i;
                     end
-                    CSR_MEPC: begin
+                    `CSR_MEPC: begin
                         mepc <= csr_wdata_i;
                     end
-                    CSR_MCAUSE: begin
+                    `CSR_MCAUSE: begin
                         mcause <= csr_wdata_i;
                     end
-                    CSR_MTVAL: begin
+                    `CSR_MTVAL: begin
                         mtval <= csr_wdata_i;
                     end
-                    CSR_MIP: begin
+                    `CSR_MIP: begin
                         mip <= csr_wdata_i;
                     end
                     default: begin
@@ -160,61 +163,61 @@ module mxrv_csr_reg (
                 endcase
             end else begin
                 case (csr_addr_i)
-                    CSR_FFLAGS: begin
+                    `CSR_FFLAGS: begin
                         csr_rdata_o <= fflags;
                     end
-                    CSR_FRM: begin
+                    `CSR_FRM: begin
                         csr_rdata_o <= frm;
                     end
-                    CSR_FCSR: begin
+                    `CSR_FCSR: begin
                         csr_rdata_o <= fcsr;
                     end
-                    CSR_MSTATUS: begin
+                    `CSR_MSTATUS: begin
                         csr_rdata_o <= mstatus;
                     end
-                    CSR_MIE: begin
+                    `CSR_MIE: begin
                         csr_rdata_o <= mie;
                     end
-                    CSR_MTVEC: begin
+                    `CSR_MTVEC: begin
                         csr_rdata_o <= mtvec;
                     end
-                    CSR_MSCRATCH: begin
+                    `CSR_MSCRATCH: begin
                         csr_rdata_o <= mscratch;
                     end
-                    CSR_MEPC: begin
+                    `CSR_MEPC: begin
                         csr_rdata_o <= mepc;
                     end
-                    CSR_MCAUSE: begin
+                    `CSR_MCAUSE: begin
                         csr_rdata_o <= mcause;
                     end
-                    CSR_MTVAL: begin
+                    `CSR_MTVAL: begin
                         csr_rdata_o <= mtval;
                     end
-                    CSR_MIP: begin
+                    `CSR_MIP: begin
                         csr_rdata_o <= mip;
                     end
-                    CSR_MCYCLE: begin
+                    `CSR_MCYCLE: begin
                         csr_rdata_o <= mcycle;
                     end
-                    CSR_MCYCLEH: begin
+                    `CSR_MCYCLEH: begin
                         csr_rdata_o <= mcycleh;
                     end
-                    CSR_MINSTRET: begin
+                    `CSR_MINSTRET: begin
                         csr_rdata_o <= minstret;
                     end
-                    CSR_MINSTRETH: begin
-                        csr_rdata_o <= CSR_MINSTRET;
+                    `CSR_MINSTRETH: begin
+                        csr_rdata_o <= minstreth;
                     end
-                    CSR_MVENDORID: begin
+                    `CSR_MVENDORID: begin
                         csr_rdata_o <= mvendorid;
                     end
-                    CSR_MARCHID: begin
+                    `CSR_MARCHID: begin
                         csr_rdata_o <= marchid;
                     end
-                    CSR_MIMPID: begin
+                    `CSR_MIMPID: begin
                         csr_rdata_o <= mimpid;
                     end
-                    CSR_MHARTID: begin
+                    `CSR_MHARTID: begin
                         csr_rdata_o <= mhartid;
                     end
                     default: begin

@@ -2,6 +2,10 @@
 // define and macros
 //**********************************************
 
+// sequential logic
+`define RstEnable  1'b0
+`define RstDisable  1'b1
+
 // port width declare
 `define PORT_WORD_WIDTH 31:0
 `define WORD_WIDTH      32
@@ -29,7 +33,7 @@
 `define CSR_FCSR    12'h003
 `define CSR_MSTATUS 12'h300
 `define CSR_MISA    12'h301
-`deifne CSR_MIE     12'h304
+`define CSR_MIE     12'h304
 `define CSR_MTVEC   12'h305
 `define CSR_MSCRATCH    12'h340
 `define CSR_MEPC    12'h341

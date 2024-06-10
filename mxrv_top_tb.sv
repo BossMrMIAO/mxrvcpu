@@ -6,6 +6,7 @@
 
 `include "mxrv_define.v"
 `include "mxrv_pc_reg.v"
+`include "mxrv_csr_reg.v"
 
 module mxrv_top_tb ();
 
@@ -21,6 +22,12 @@ module mxrv_top_tb ();
 
     // pc_reg output
     wire [`PORT_WORD_WIDTH] pc_wire_out;
+
+    // csr_reg ports
+    reg[`CsrRegAddrBus] csr_addr;
+    reg we;
+    reg[`RegBus]    csr_wdata;
+    wire[`RegBus]   csr_rdata;
     
     // instance pc_reg
     mxrv_pc_reg u_pc_reg (
@@ -31,6 +38,16 @@ module mxrv_top_tb ();
         // case3 use
         .jump_flag_i(jump_flag),
         .jump_addr_i(jump_addr)
+    );
+
+    // instance csr_reg
+    mxrv_csr_reg u_csr_reg (
+        .clk(clk),
+        .rst_n(rst_n),
+        .csr_addr_i(csr_addr),
+        .csr_wdata_i(csr_wdata),
+        .we_i(we),
+        .csr_rdata_o(csr_rdata)
     );
 
     // clk logic
@@ -76,6 +93,33 @@ module mxrv_top_tb ();
         end
         jump_flag = 0;
         jump_addr = 0;
+    end
+
+
+    // CSR_REG READ OR WRITE TEST
+    initial begin
+        we = 0;
+        csr_wdata = 0;
+        csr_addr = `ZeroWord;
+        #5000;
+        fork
+            begin: READ
+                #100;
+                we = 0;
+                csr_addr = `CSR_MISA;
+            end
+            begin: WRITE
+                #300;
+                we = 1;
+                csr_addr = `CSR_MSTATUS;
+                csr_wdata = $urandom;
+            end
+            begin: CHECK
+                #400;
+                we = 0;
+                csr_addr = `CSR_MSTATUS;
+            end
+        join
     end
 
     // sim timeout
