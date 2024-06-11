@@ -61,8 +61,9 @@ module mxrv_top_tb ();
 
     // rst_n logic
     initial begin
+        #10;
         rst_n = 0;
-        #100;
+        #90;
         rst_n = 1;
     end
 
@@ -98,25 +99,25 @@ module mxrv_top_tb ();
 
     // CSR_REG READ OR WRITE TEST
     initial begin
-        we = 0;
-        csr_wdata = 0;
+        we = `Read;
+        csr_wdata = `ZeroWord;
         csr_addr = `ZeroWord;
         #5000;
         fork
             begin: READ
                 #100;
-                we = 0;
+                we = `Read;
                 csr_addr = `CSR_MISA;
             end
             begin: WRITE
                 #300;
-                we = 1;
+                we = `Write;
                 csr_addr = `CSR_MSTATUS;
                 csr_wdata = $urandom;
             end
             begin: CHECK
                 #400;
-                we = 0;
+                we = `Read;
                 csr_addr = `CSR_MSTATUS;
             end
         join
@@ -124,7 +125,7 @@ module mxrv_top_tb ();
 
     // sim timeout
     initial begin
-        #500000
+        #10000
         $display("Time Out.");
         $finish;
     end

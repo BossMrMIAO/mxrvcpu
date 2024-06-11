@@ -19,13 +19,16 @@
 // Common Value
 `define ZeroByte    8'h0
 `define ZeroWord    32'h0
+`define ErrorWord   32'hffff_ffff
 `define ZeroDouble  64'h0
+
 
 // CSR parameter support
 `define RV32I   32'h4000_0100
 `define SingleHart  32'h1
 `define Write   1'b1
 `define Read    1'b0
+
 
 // CSR REG addr list
 `define CSR_FFLAGS  12'h001

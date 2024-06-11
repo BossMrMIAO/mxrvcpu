@@ -46,11 +46,11 @@ module mxrv_csr_reg (
     // 查询终端等待状态
     reg[`RegBus] mip;
     // 反应处理器执行了多少个时钟，共64位
-    reg[`RegBus] mcycle;
-    reg[`RegBus] mcycleh;
+    wire[`RegBus] mcycle;
+    wire[`RegBus] mcycleh;
     // 反应处理器成功执行的指令数目，可用于衡量处理器性能
-    reg[`RegBus] minstret;
-    reg[`RegBus] minstreth;
+    wire[`RegBus] minstret;
+    wire[`RegBus] minstreth;
     // 只读，供应商编号，为0，为非商业处理器
     reg[`RegBus] mvendorid;
     // 只读，微架构编号，为0，未实现
@@ -65,40 +65,39 @@ module mxrv_csr_reg (
     reg[`RegBus] mtimecmp;
     reg[`RegBus] msip;
 
-    
+    // cycle and instret
+    reg[`DoubleRegBus]  cycle,instret;
+    assign mcycle = cycle[31:0];
+    assign mcycleh = cycle[63:32];
+    assign minstret = instret[31:0];
+    assign minstreth = instret[63:32];
     
 
     // 周期计数: 时钟，复位，cycle寄存器
     always @(posedge clk or negedge rst_n) begin
         if(rst_n == `RstEnable) begin
-            {mcycleh, mcycle} <= `ZeroDouble;
+            //{mcycleh, mcycle} <= `ZeroDouble;
+            cycle <= `ZeroDouble;
         end else begin
-            {mcycleh, mcycle} <= {mcycleh, mcycleh} + 1'b1;
+            //{mcycleh, mcycle} <= {mcycleh, mcycleh} + 1'b1;
+            cycle <= cycle + 1'b1;
         end
     end
 
     // 指令成功计数：时钟，复位，指令执行成功信号，instret寄存器
     always @(posedge clk or negedge rst_n) begin
         if(rst_n == `RstEnable) begin
-            {minstreth, minstret} <= `ZeroDouble;
+            //{minstreth, minstret} <= `ZeroDouble;
+            instret <= `ZeroDouble;
         end else begin
             if (inst_succ_flag) begin
-                {minstreth, minstret} <= {minstreth, minstret} + 1'b1;
+                //{minstreth, minstret} <= {minstreth, minstret} + 1'b1;
+                instret <= instret + 1'b1;
             end else begin
-                {minstreth, minstret} <= {minstreth, minstret};
+                //{minstreth, minstret} <= {minstreth, minstret};
+                instret <= instret;
             end
         end
-    end
-
-    // 只读寄存器配置, 组合逻辑，没有写入逻辑
-    always @(*) begin
-        // 32位指令集支持
-        misa <= `RV32I;
-        mvendorid <= `ZeroWord;
-        marchid <= `ZeroWord;
-        mimpid <= `ZeroWord;
-        // 暂不支持超线程技术，仅单核处理器实现
-        mhartid <= `SingleHart;
     end
 
     // 读写寄存器逻辑
@@ -119,6 +118,14 @@ module mxrv_csr_reg (
             mcause <= `ZeroWord;
             mtval <=`ZeroWord;
             mip <= `ZeroWord;
+            // 只读寄存器初始化
+            // 32位指令集支持
+            misa <= `RV32I;
+            mvendorid <= `ZeroWord;
+            marchid <= `ZeroWord;
+            mimpid <= `ZeroWord;
+            // 暂不支持超线程技术，仅单核处理器实现
+            mhartid <= `SingleHart;
             // 读输出初始化
             csr_rdata_o <= `ZeroWord;
         end else begin
@@ -158,7 +165,7 @@ module mxrv_csr_reg (
                         mip <= csr_wdata_i;
                     end
                     default: begin
-                        
+                        csr_rdata_o <= `ErrorWord;
                     end
                 endcase
             end else begin
@@ -174,6 +181,9 @@ module mxrv_csr_reg (
                     end
                     `CSR_MSTATUS: begin
                         csr_rdata_o <= mstatus;
+                    end
+                    `CSR_MISA: begin
+                        csr_rdata_o <= misa;
                     end
                     `CSR_MIE: begin
                         csr_rdata_o <= mie;
@@ -220,8 +230,11 @@ module mxrv_csr_reg (
                     `CSR_MHARTID: begin
                         csr_rdata_o <= mhartid;
                     end
+
+
+                    
                     default: begin
-                        
+                        csr_rdata_o <= `ErrorWord;
                     end
                 endcase
             end
