@@ -241,7 +241,5 @@ module mxrv_csr_reg (
         end
     end
 
-
-
     
 endmodule
