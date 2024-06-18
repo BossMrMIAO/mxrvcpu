@@ -13,6 +13,7 @@ module mxrv_id (
     output wire[`funct3_WIDTH]   funct3,
     output reg[`REG_ADDR_WIDTH] rs1,
     output reg[`REG_ADDR_WIDTH] rs2,
+    output reg[`funct7_WIDTH]   funct7,
     output reg[`REG_ADDR_WIDTH] shamt,
     output reg  L_or_A_flag,
     output reg[`REG_ADDR_WIDTH] zimm,
@@ -46,13 +47,20 @@ module mxrv_id (
                 endcase
             end
             `INST_TYPE_L: begin
-                
+                rd = inst_data_i[11:7];
+                rs1 = inst_data_i[19:15];
+                imm = {20'h0, inst_data_i[31:20]};
             end
             `INST_TYPE_S: begin
-                
+                rs1 = inst_data_i[19:15];
+                rs2 = inst_data_i[24:20];
+                imm = {20'h0, inst_data_i[31:25], inst_data_i[11:7]};
             end
             `INST_TYPE_R_M: begin
-                
+                rd = inst_data_i[11:7];
+                rs1 = inst_data_i[19:15];
+                rs2 = inst_data_i[24:20];
+                funct7 = inst_data_i[31:25];
             end
             `INST_JAL: begin
                 
