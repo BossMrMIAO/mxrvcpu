@@ -63,12 +63,17 @@ module mxrv_id (
                 funct7 = inst_data_i[31:25];
             end
             `INST_JAL: begin
-                
+                rd = inst_data_i[11:7];
+                imm = {11'h0, inst_data_i[31], inst_data_i[19:12], inst_data_i[20], inst_data_i[30:21]};
             end
             `INST_JALR: begin
+                rd = inst_data_i[11:7];
+                rs1 = inst_data_i[19:15];
+                imm = {20'h0, inst_data_i[31:20]};
+            end
+            default: begin
                 
             end
-            default: 
         endcase
     end
     
