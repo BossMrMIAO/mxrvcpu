@@ -12,13 +12,15 @@ module mxrv_if(
     input rst_n,
     // pc value = inst_addr
     input[`PORT_WORD_WIDTH] pc_i,
-    // inst data
+    // inst data and send out pc
     input   inst_valid_i,
     input[`PORT_WORD_WIDTH] inst_data_i,
+    output reg rd_valid,
+    input rd_ready,
+    output reg[`PORT_WORD_WIDTH] pc_o,
 
     // 将pc值与指令一并送出，时序需要注意
     output reg  pc_inst_valid_o,
-    output reg[`PORT_WORD_WIDTH]    pc_o,
     output reg[`PORT_WORD_WIDTH]    inst_data_o
     
 );
@@ -30,12 +32,22 @@ module mxrv_if(
             pc_inst_valid_o <= `Disable;
             pc_o <= `Disable;
             inst_data_o <= `Disable;
+            // transfer pc to INST rom
+            pc_o <= `ZeroWord;
+            rd_valid <= `Disable;
         end else begin
             if(inst_valid_i) begin
-                pc_o <= pc_i;
                 inst_data_o <= inst_data_i;
                 pc_inst_valid_o <= `Enable;
             end
+        end
+    end
+
+    // send pc to rom
+    always @(posedge clk or negedge rst_n) begin
+        if(rd_ready) begin
+            pc_o <= pc_i;
+            rd_valid <= `Enable;
         end
     end
     
