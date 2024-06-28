@@ -1,12 +1,12 @@
 //**************************************************
-// mxrv_pc_reg.v
+// pc_reg.v
 // function: PC指针变化逻辑
 // case1: 默认状态，一拍，PC指针地址偏移+4
 // case2: 增加hold状态，此状态下PC指针保持，流水线暂停
 // case3: 地址跳转，此状态下PC直接装在送过来的地址
 //**************************************************
 
-module mxrv_pc_reg (
+module pc_reg (
     input   clk,
     input   rst_n,
     // case2 use

@@ -17,7 +17,6 @@ module mxrv_id (
     output reg[`REG_ADDR_WIDTH] shamt,
     output reg  L_or_A_flag,
     output reg[`REG_ADDR_WIDTH] zimm,
-    output reg[`funct7_WIDTH]   funct7,
     output reg[`PORT_WORD_WIDTH]    imm
 );
 

@@ -1,30 +1,71 @@
-#########################################################
-## Makefile
-## function: for complie and simulation script
-#########################################################
+#RUN_DIR=
+SIM_DIR = $(RUN_DIR)/../sim
+#----------------------------------------
+#	BASIC PARAMETER
+#----------------------------------------
+SEED ?= $(shell date +%Y%m%d%H%M%S)
+TEST_CASE ?= mcdf_data_consistence_basic_test
 
-VVP_FILE:=out.vvp
-VVP_OPTION:= -o $(VVP_FILE)
-VCD_FILE:=mxrv_top_tb.vcd
-FILELIST:=mxrv_top_tb.sv
+#----------------------------------------
+#	OPT
+#----------------------------------------
+FILELIST_OPT ?= -f ../filelist/hdl.lst
+FILELIST_OPT += -f ../filelist/hvl.lst
+INC_OPT ?= -f ../filelist/inc.lst
+TIMESCALE_OPT ?= -timescale=1ns/1ps
+RUN_AFTER_COMP ?= 1
+# UVM_OPT ?= -ntb_opts uvm-1.2 +UVM_VERBOSITY=UVM_HIGH +UVM_TESTNAME=$(TEST_CASE)
+LOG_OPT ?= -l $(SIM_DIR)/$(TEST_CASE).log
+DEFINE_OPT ?= +define+UVM_REG_GET_BASE_RESPONSE_WITHOUT_REQ_ID
+DEFINE_OPT += +define+BASIC_SIM_ENV+PC_REG_TEST
+IES_OPT := -full64  $(RUN_OPT)  +vc  +v2k  -sverilog +seed=$(SEED) -debug_access+all -fsdb -top pc_reg_test_tb
 
-.PHONY:run clean flow
+#----------------------------------------
+#	logic control
+#----------------------------------------
+#if ($(RUN_AFTER_COMP) eq 1):
+	IES_OPT += -R
 
-compile:
-	iverilog 					\
-		$(VVP_OPTION)				\
-		$(FILELIST)					
 
-sim:
-	vvp							\
-		$(VVP_FILE)
+#----------------------------------------
+#	TEST_COMMAND
+#----------------------------------------
+test :
+	echo $(SEED)
 
-wave:
-	gtkwave						\
-		$(VCD_FILE)
 
-run: compile sim
-flow: run wave
 
-clean:
-	rm -f $(VVP_FILE) *.vvp $(VCD_FILE) *.vcd *.out
+
+#----------------------------------------
+#	comp and run by vcs
+#----------------------------------------
+run	:
+	vcs \
+		$(INC_OPT) \
+		$(FILELIST_OPT) \
+        $(TIMESCALE_OPT) \
+		$(UVM_OPT) \
+		$(DEFINE_OPT) \
+        $(IES_OPT)	\
+		$(LOG_OPT)
+        
+#----------------------------------------
+#	simv by vcs
+#----------------------------------------
+simv	:
+	./simv
+
+#----------------------------------------
+#	verdi
+#----------------------------------------
+verdi  :
+	verdi -sv -f $(FILELIST_OPT) -ssf tb.fsdb &
+
+
+#----------------------------------------
+#	clean for vcs
+#----------------------------------------
+clean  :
+	 rm  -rf  *~  core  csrc  simv*  vc_hdrs.h  ucli.key  urg* *.log  novas.* *.fsdb* verdiLog  64* DVEfiles *.vpd
+	 rm -rf INCA_libs irun*
+	 rm -rf modelsim.ini transcript work

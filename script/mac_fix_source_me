@@ -1,0 +1,16 @@
+#====================================================================#
+#=========================Fix MAC address============================#
+#====================================================================#
+mac=00:15:5d:01:98:50
+gateway=$(ip route | awk '/default via /{print $3; exit}' 2>/dev/null)
+if ! ip link show | grep -q $mac; then
+    sudo ip link set dev eth0 down
+    sudo ip link set dev eth0 address $mac
+    sudo ip link set dev eth0 up
+    sudo ip route add default via $gateway dev eth0
+fi
+
+#====================================================================#
+#=========================Start lmgrd================================#
+#====================================================================#
+lmli

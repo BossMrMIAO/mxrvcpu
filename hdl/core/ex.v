@@ -6,8 +6,8 @@
 //****************************************
 
 module mxrv_ex (
-    input clk;
-    input rst_n;
+    input clk,
+    input rst_n,
     // 从指令译码中获得输入数据
     input[`OPCODE_WIDTH]  opcode_i,
     input[`REG_ADDR_WIDTH] rd_i,
@@ -18,7 +18,6 @@ module mxrv_ex (
     input[`REG_ADDR_WIDTH] shamt_i,
     input  L_or_A_flag_i,
     input[`REG_ADDR_WIDTH] zimm_i,
-    input[`funct7_WIDTH]   funct7_i,
     input[`PORT_WORD_WIDTH]    imm_i,
 
     // 结果寄存器数值
@@ -26,7 +25,7 @@ module mxrv_ex (
     input[`RegBus]  rs2_reg_data_i,
     // 回写寄存器
     output[`RegBus] rd_wr_en_o,
-    output reg[`RegBus] rd_reg_data_o
+    output reg[`RegBus] rd_reg_data_o,
     // 回写存储器
 
     // 接控制单元
@@ -46,9 +45,9 @@ module mxrv_ex (
                 case (funct3_i)
                     //加立即数
                     `INST_ADDI: begin
-                        rd_reg_data_i = imm_i + rs1_reg_data_i;
+                        rd_reg_data_o = imm_i + rs1_reg_data_i;
                     end
-                    `INST_STLI: begin
+                    `INST_SLTI: begin
                         
                     end
                     // `INST_ADDI, `INST_SLTI, `INST_SLTIU, `INST_XORI, `INST_ORI, `INST_ANDI: begin

@@ -200,8 +200,8 @@
 `define x28     5'h28
 `define t3      5'h28
 `define x29     5'h29
-`define s10     5'h29
+`define t4      5'h29
 `define x30     5'h30
 `define t5      5'h30
-`define x13     5'h31
+`define x31     5'h31
 `define t6      5'h31

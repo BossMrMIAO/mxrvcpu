@@ -1,0 +1,13 @@
+$RUN_DIR/../hdl/core/define.v
+
+$RUN_DIR/../hdl/core/csr_reg.v
+$RUN_DIR/../hdl/core/ctrl.v
+$RUN_DIR/../hdl/core/pc_reg.v
+$RUN_DIR/../hdl/core/reg.v
+$RUN_DIR/../hdl/core/ifu.v
+$RUN_DIR/../hdl/core/id.v
+$RUN_DIR/../hdl/core/ex.v
+$RUN_DIR/../hdl/core/rom.v
+$RUN_DIR/../hdl/core/soc_core_top.v
+
+

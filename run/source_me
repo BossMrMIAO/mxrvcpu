@@ -1,0 +1,28 @@
+#================================================
+#   basic parameter
+#================================================
+export RUN_DIR=`pwd`
+
+#================================================
+#   command substitute
+#================================================
+alias mr="make run TEST_CASE=mcdf_full_random_test"
+alias mr1="make run TEST_CASE=mcdf_base_test"
+alias mr2="make run TEST_CASE=mcdf_data_consistence_basic_test"
+alias mr3="make run TEST_CASE=mcdf_reg_builtin_test"
+
+
+alias sim='cd $RUN_DIR/../sim'
+alias hdl='cd $RUN_DIR/../hdl'
+alias hvl='cd $RUN_DIR/../hvl'
+alias fl='cd $RUN_DIR/../filelist'
+alias tr='cd $RUN_DIR'
+alias ts='cd $RUN_DIR/../script'
+alias tc='cd $RUN_DIR/../test'
+alias tb='cd $RUN_DIR/../top'
+
+#================================================
+#   show info
+#================================================
+echo "Source source_me complete!"
+echo "Enjoy your time!"

@@ -1,21 +1,20 @@
 //*****************************************
-// tb.sv
+// pc_reg_test_tb.sv
 // function: provide module instance and basic test
 //*****************************************
 `timescale 1ns/1ps
 
-module tb ();
+module pc_reg_test_tb ();
 
     reg clk;
     reg rst_n;
 
-`ifdef PC_REG_TEST
     // jump signals
     reg jump_flag;
     reg [`PORT_WORD_WIDTH]  jump_addr;
 
 
-
+//PC_REG_TEST
     // hold signals
     reg hold_flag;
 
@@ -103,11 +102,10 @@ module tb ();
             end
         join
     end
-`endif
 
 
 
-`ifdef BASIC_SIM_ENV
+// CLK_ENV
     // clk logic
     initial begin
         clk = 0;
@@ -136,8 +134,8 @@ module tb ();
     initial begin
         // $dumpfile("tb.vcd");
         $dumpfile("tb.fsdb");
-        $dumpvars(0, tb);
+        $dumpvars(0, pc_reg_test_tb);
     end
-`endif
+
 
 endmodule

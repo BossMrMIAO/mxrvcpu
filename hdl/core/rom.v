@@ -1,17 +1,17 @@
 //***********************************************
-// mxrv_rom
+// rom
 // funtion: 存储指令，一般按顺序寻址，由pc值来寻址
 //***********************************************
 
 
-module mxrv_rom (
+module rom (
     input clk,
     input rst_n,
-    // from mxrv_if
+    // from if
     input[`PORT_WORD_WIDTH] pc_i,
     input rd_valid,
     output reg rd_ready,
-    // to mxrv_if
+    // to if
     output reg[`PORT_WORD_WIDTH] inst_data_o,
     output reg inst_valid_o
 );
