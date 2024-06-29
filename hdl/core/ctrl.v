@@ -1,11 +1,11 @@
 //********************************************************
-// mxrv_ctrl
+// ctrl
 // function: decide when to send hold and flush command
 //********************************************************
 
 
-module mxrv_ctrl (
-    
+module ctrl (
+
 );
     
 endmodule

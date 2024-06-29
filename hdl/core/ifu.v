@@ -15,13 +15,13 @@ module ifu (
     // inst data and send out pc
     input   inst_valid_i,
     input[`PORT_WORD_WIDTH] inst_data_i,
-    output reg rd_valid,
-    input rd_ready,
-    output reg[`PORT_WORD_WIDTH] pc_o,
+    output reg pc_send_valid_o,
+    input pc_receive_ready_i,
+    output reg[`PORT_WORD_WIDTH] pc_ifu_o,
 
     // 将pc值与指令一并送出，时序需要注意
-    output reg  pc_inst_valid_o,
-    output reg[`PORT_WORD_WIDTH]    inst_data_o
+    output reg  inst_ifu_valid_o,
+    output reg[`PORT_WORD_WIDTH]    inst_data_ifu_o
     
 );
     
@@ -29,25 +29,25 @@ module ifu (
     // 待考虑后续ex真的需要pc值吗？
     always @(posedge clk or negedge rst_n) begin
         if (rst_n == `RstEnable) begin
-            pc_inst_valid_o <= `Disable;
-            pc_o <= `Disable;
-            inst_data_o <= `Disable;
+            inst_ifu_valid_o <= `Disable;
+            pc_ifu_o <= `Disable;
+            inst_data_ifu_o <= `Disable;
             // transfer pc to INST rom
-            pc_o <= `ZeroWord;
-            rd_valid <= `Disable;
+            pc_ifu_o <= `ZeroWord;
+            pc_send_valid_o <= `Disable;
         end else begin
             if(inst_valid_i) begin
-                inst_data_o <= inst_data_i;
-                pc_inst_valid_o <= `Enable;
+                inst_data_ifu_o <= inst_data_i;
+                inst_ifu_valid_o <= `Enable;
             end
         end
     end
 
     // send pc to rom
     always @(posedge clk or negedge rst_n) begin
-        if(rd_ready) begin
-            pc_o <= pc_i;
-            rd_valid <= `Enable;
+        if(pc_receive_ready_i) begin
+            pc_ifu_o <= pc_i;
+            pc_send_valid_o <= `Enable;
         end
     end
     

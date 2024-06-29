@@ -9,12 +9,11 @@ module pc_reg_test_tb ();
     reg clk;
     reg rst_n;
 
+//PC_REG_TEST
     // jump signals
     reg jump_flag;
     reg [`PORT_WORD_WIDTH]  jump_addr;
 
-
-//PC_REG_TEST
     // hold signals
     reg hold_flag;
 

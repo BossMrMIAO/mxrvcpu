@@ -9,24 +9,24 @@ module rom (
     input rst_n,
     // from if
     input[`PORT_WORD_WIDTH] pc_i,
-    input rd_valid,
-    output reg rd_ready,
+    input pc_send_valid_i,
+    output reg pc_receive_ready_o,
     // to if
     output reg[`PORT_WORD_WIDTH] inst_data_o,
     output reg inst_valid_o
 );
 
-    reg [`RegBus]INST_ROM[0:31];
+    reg [`RegBus]INST_ROM[0:127];
 
 
     always @(posedge clk or negedge rst_n) begin
         if(rst_n == `RstEnable) begin
-            rd_ready <= `Enable;
+            pc_receive_ready_o <= `Enable;
             inst_data_o <= `ZeroWord;
             inst_valid_o <= `Enable;
         end else begin
-            if(rd_valid) begin
-                inst_data_o <= INST_ROM[pc_i];
+            if(pc_send_valid_i) begin
+                inst_data_o <= INST_ROM[pc_i >> 2];
                 inst_valid_o <= `Enable;
             end
         end

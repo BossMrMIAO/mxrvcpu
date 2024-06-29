@@ -17,8 +17,8 @@ RUN_AFTER_COMP ?= 1
 # UVM_OPT ?= -ntb_opts uvm-1.2 +UVM_VERBOSITY=UVM_HIGH +UVM_TESTNAME=$(TEST_CASE)
 LOG_OPT ?= -l $(SIM_DIR)/$(TEST_CASE).log
 DEFINE_OPT ?= +define+UVM_REG_GET_BASE_RESPONSE_WITHOUT_REQ_ID
-DEFINE_OPT += +define+BASIC_SIM_ENV+PC_REG_TEST
-IES_OPT := -full64  $(RUN_OPT)  +vc  +v2k  -sverilog +seed=$(SEED) -debug_access+all -fsdb -top pc_reg_test_tb
+# DEFINE_OPT += +define+BASIC_SIM_ENV+PC_REG_TEST
+IES_OPT := -full64  $(RUN_OPT)  +vc  +v2k  -sverilog +seed=$(SEED) -debug_access+all -fsdb -top ifu_test_tb
 
 #----------------------------------------
 #	logic control

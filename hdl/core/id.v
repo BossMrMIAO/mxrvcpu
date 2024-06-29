@@ -4,7 +4,7 @@
 // 整个是一个纯组合逻辑器件，用于拆分传入的指令，并分装到输出接口上
 //************************************
 
-module mxrv_id (
+module id (
     // inst
     input[`PORT_WORD_WIDTH] inst_data_i,
     // 输出拆解信号
@@ -17,7 +17,10 @@ module mxrv_id (
     output reg[`REG_ADDR_WIDTH] shamt,
     output reg  L_or_A_flag,
     output reg[`REG_ADDR_WIDTH] zimm,
-    output reg[`PORT_WORD_WIDTH]    imm
+    output reg[`PORT_WORD_WIDTH]    imm,
+
+    // decode err signal
+    output reg id_err_o
 );
 
     // 固定连接
@@ -33,15 +36,17 @@ module mxrv_id (
                         rd = inst_data_i[11:7];
                         rs1 = inst_data_i[19:15];
                         imm = {20'h0, inst_data_i[31:20]};
+                        id_err_o = `Disable;
                     end 
                     `INST_SLLI, `INST_SRI: begin
                         rd = inst_data_i[11:7];
                         rs1 = inst_data_i[19:15];
                         shamt = inst_data_i[24:20];
                         L_or_A_flag = inst_data_i[30];
+                        id_err_o = `Disable;
                     end
                     default: begin
-                        
+                        id_err_o <= `Enable;
                     end
                 endcase
             end
@@ -49,29 +54,34 @@ module mxrv_id (
                 rd = inst_data_i[11:7];
                 rs1 = inst_data_i[19:15];
                 imm = {20'h0, inst_data_i[31:20]};
+                id_err_o = `Disable;
             end
             `INST_TYPE_S: begin
                 rs1 = inst_data_i[19:15];
                 rs2 = inst_data_i[24:20];
                 imm = {20'h0, inst_data_i[31:25], inst_data_i[11:7]};
+                id_err_o = `Disable;
             end
             `INST_TYPE_R_M: begin
                 rd = inst_data_i[11:7];
                 rs1 = inst_data_i[19:15];
                 rs2 = inst_data_i[24:20];
                 funct7 = inst_data_i[31:25];
+                id_err_o = `Disable;
             end
             `INST_JAL: begin
                 rd = inst_data_i[11:7];
                 imm = {11'h0, inst_data_i[31], inst_data_i[19:12], inst_data_i[20], inst_data_i[30:21]};
+                id_err_o = `Disable;
             end
             `INST_JALR: begin
                 rd = inst_data_i[11:7];
                 rs1 = inst_data_i[19:15];
                 imm = {20'h0, inst_data_i[31:20]};
+                id_err_o = `Disable;
             end
             default: begin
-                
+                id_err_o = `Enable;
             end
         endcase
     end
