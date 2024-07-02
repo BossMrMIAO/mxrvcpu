@@ -40,16 +40,14 @@ module ifu (
                 inst_data_ifu_o <= inst_data_i;
                 inst_ifu_valid_o <= `Enable;
             end
+            if(pc_receive_ready_i) begin
+                pc_ifu_o <= pc_i;
+                pc_send_valid_o <= `Enable;
+            end
         end
     end
 
-    // send pc to rom
-    always @(posedge clk or negedge rst_n) begin
-        if(pc_receive_ready_i) begin
-            pc_ifu_o <= pc_i;
-            pc_send_valid_o <= `Enable;
-        end
-    end
+
     
 
 endmodule

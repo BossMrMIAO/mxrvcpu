@@ -36,7 +36,7 @@ module ex (
 );
 
     // hold住或除法器计算中，就不要再一直不停会写寄存器了
-    assign rd_wr_en = (Hold_flag_i | div_busy_i) ? 1'b0 : 1'b1;
+    assign rd_wr_en = (Hold_flag_i | div_busy_i) ? `Disable : `Enable;
 
     // 组合逻辑执行指令操作
     always @(*) begin

@@ -19,6 +19,9 @@ module id (
     output reg[`REG_ADDR_WIDTH] zimm,
     output reg[`PORT_WORD_WIDTH]    imm,
 
+    // rom valid signal
+    output rs1_req_rd_valid_o, rs2_req_rd_valid_o,
+
     // decode err signal
     output reg id_err_o
 );
@@ -26,6 +29,7 @@ module id (
     // 固定连接
     assign opcode = inst_data_i[6:0];
     assign funct3 = (opcode != `INST_LUI | opcode != `INST_AUIPC | opcode != `INST_JAL) ? inst_data_i[14:12] : 3'h0;
+    assign {rs1_req_rd_valid_o, rs2_req_rd_valid_o} = {`Enable, `Enable};
 
     // 组合逻辑拆解指令
     always @(*) begin
@@ -69,6 +73,7 @@ module id (
                 funct7 = inst_data_i[31:25];
                 id_err_o = `Disable;
             end
+            // J type inst
             `INST_JAL: begin
                 rd = inst_data_i[11:7];
                 imm = {11'h0, inst_data_i[31], inst_data_i[19:12], inst_data_i[20], inst_data_i[30:21]};
@@ -78,6 +83,18 @@ module id (
                 rd = inst_data_i[11:7];
                 rs1 = inst_data_i[19:15];
                 imm = {20'h0, inst_data_i[31:20]};
+                id_err_o = `Disable;
+            end
+            `INST_LUI, `INST_AUIPC: begin
+                rd = inst_data_i[11:7];
+                imm = {inst_data_i[31:12], 12'h0};
+                id_err_o = `Disable;
+            end
+            // B type inst
+            `INST_TYPE_B: begin
+                rs1 = inst_data_i[19:15];
+                rs2 = inst_data_i[24:20];
+                imm = {19'h0, inst_data_i[31], inst_data_i[7], inst_data_i[30:25], inst_data_i[11:8], 1'h0};
                 id_err_o = `Disable;
             end
             default: begin

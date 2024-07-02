@@ -122,7 +122,7 @@
 `define INST_ECALL  32'h73
 `define INST_EBREAK 32'h00100073
 
-// J type inst
+// B type inst
 `define INST_TYPE_B 7'b1100011
 `define INST_BEQ    3'b000
 `define INST_BNE    3'b001

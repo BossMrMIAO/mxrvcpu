@@ -20,6 +20,28 @@ module ifu_test_tb ();
     wire inst_ifu_valid;
     wire[`PORT_WORD_WIDTH] inst_data_ifu;
 
+
+    wire[`OPCODE_WIDTH] opcode;
+    wire[`REG_ADDR_WIDTH] rd;
+    wire[`funct3_WIDTH] funct3;
+    wire[`REG_ADDR_WIDTH]   rs1,rs2;
+    wire[`funct7_WIDTH] fucnt7;
+    wire[`REG_ADDR_WIDTH] shamt;
+    wire    L_or_A_flag;
+    wire[`REG_ADDR_WIDTH] zimm;
+    wire[`PORT_WORD_WIDTH]  imm;
+
+    wire[`RegBus] rs1_reg_data,rs2_reg_data;
+    wire[`RegBus] rd_wr_en,rd_reg_data;
+    wire Hold_flag,div_busy;
+
+   
+    wire[`RegBus] rs1_addr, rs2_addr;   
+    wire rs1_req_rd_valid, rs2_req_rd_valid;
+    wire[`RegBus] rs1_reg_data, rs2_reg_data;
+    wire[`RegBus] rd_addr, rd_data;
+    wire rd_req_wr_valid;
+
     ifu u_ifu (
         .clk(clk),
         .rst_n(rst_n),
@@ -52,7 +74,55 @@ module ifu_test_tb ();
 
     // instance id
     id u_id (
-        .inst_data_i(inst_data_ifu)
+        .inst_data_i(inst_data_ifu),
+        .opcode(opcode),
+        .rd(rd),
+        .funct3(funct3),
+        .rs1(rs1),
+        .rs2(rs2),
+        .funct7(funct7),
+        .shamt(shamt),
+        .L_or_A_flag(L_or_A_flag),
+        .zimm(zimm),
+        .imm(imm),
+        .rs1_req_rd_valid_o(rs1_req_rd_valid),
+        .rs2_req_rd_valid_o(rs2_req_rd_valid)
+    );
+
+    // instance ex
+    ex u_ex (
+        .clk(clk),
+        .rst_n(rst_n),
+        .opcode_i(opcode),
+        .rd_i(rd),
+        .funct3_i(funct3),
+        .rs1_i(rs1),
+        .rs2_i(rs2),
+        .funct7_i(funct7),
+        .shamt_i(shamt),
+        .L_or_A_flag_i(L_or_A_flag),
+        .zimm_i(zimm),
+        .imm_i(imm),
+        .rs1_reg_data_i(rs1_reg_data),
+        .rs2_reg_data_i(rs2_reg_data),
+        .rd_wr_en_o(rd_wr_en),
+        .rd_reg_data_o(rd_reg_data),
+        .Hold_flag_i(Hold_flag),
+        .div_busy_i(div_busy)
+    );
+
+    regu u_regu (
+        .clk(clk),
+        .rst_n(rst_n),
+        .rs1_addr_i(rs1),
+        .rs2_addr_i(rs2),
+        .rs1_req_rd_valid_i(rs1_req_rd_valid),
+        .rs2_req_rd_valid_i(rs2_req_rd_valid),
+        .rs1_reg_data_o(rs1_reg_data),
+        .rs2_reg_data_o(rs2_reg_data),
+        .rd_addr_i(rd_addr),
+        .rd_data_i(rd_data),
+        .rd_req_wr_valid_i(rd_req_wr_valid)
     );
 
     // initial ROM for load inst. content
