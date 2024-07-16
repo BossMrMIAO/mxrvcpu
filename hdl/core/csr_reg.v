@@ -9,7 +9,7 @@
 // `include "define.v"
 
 module csr_reg (
-    // for rd or wr to sychronized register
+    // global clock
     input clk,
     input rst_n,
     // inst, if csr related, execute. Otherwise no effect

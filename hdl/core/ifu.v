@@ -8,18 +8,20 @@
 //**************************************************
 
 module ifu (
+    // global clock
     input clk,
     input rst_n,
-    // pc value = inst_addr
+    // pc value = inst_addr，链接来自pc_reg
     input[`PORT_WORD_WIDTH] pc_i,
-    // inst data and send out pc
+    // inst data and send out pc，与指令存储器ROM的交互接口
     input   inst_valid_i,
     input[`PORT_WORD_WIDTH] inst_data_i,
     output reg pc_send_valid_o,
-    input pc_receive_ready_i,
     output reg[`PORT_WORD_WIDTH] pc_ifu_o,
+    input pc_receive_ready_i,
 
-    // 将pc值与指令一并送出，时序需要注意
+
+    // 将pc值与指令一并送出，时序需要注意, 连接DFF1
     output reg  inst_ifu_valid_o,
     output reg[`PORT_WORD_WIDTH]    inst_data_ifu_o
     
