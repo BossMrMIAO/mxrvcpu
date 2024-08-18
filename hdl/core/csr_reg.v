@@ -12,8 +12,7 @@ module csr_reg (
     // global clock
     input clk,
     input rst_n,
-    // inst, if csr related, execute. Otherwise no effect
-    input[`PORT_WORD_WIDTH] inst_i,
+    
     // 读写寄存器一套接口
     input[`CsrRegAddrBus] csr_addr_i,
     input   we_i,

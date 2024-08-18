@@ -25,10 +25,8 @@ module rom (
             inst_data_o <= `ZeroWord;
             inst_valid_o <= `Enable;
         end else begin
-            if(pc_send_valid_i) begin
-                inst_data_o <= INST_ROM[pc_i >> 2];
-                inst_valid_o <= `Enable;
-            end
+            inst_data_o <= INST_ROM[pc_i >> 2];
+            inst_valid_o <= `Enable;
         end
     end
 

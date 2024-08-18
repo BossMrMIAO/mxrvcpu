@@ -38,10 +38,12 @@ module ifu (
             pc_ifu_o <= `ZeroWord;
             pc_send_valid_o <= `Disable;
         end else begin
+            // 来自ROM的指令内容有效
             if(inst_valid_i) begin
                 inst_data_ifu_o <= inst_data_i;
                 inst_ifu_valid_o <= `Enable;
             end
+            // ROM给出的可以接收指令ready信号
             if(pc_receive_ready_i) begin
                 pc_ifu_o <= pc_i;
                 pc_send_valid_o <= `Enable;
