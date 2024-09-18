@@ -14,60 +14,60 @@ module csr_reg (
     input rst_n,
     
     // 读写寄存器一套接口
-    input[`CsrRegAddrBus] csr_addr_i,
+    input[`CsrRegAddrBusPort] csr_addr_i,
     input   we_i,
-    input[`RegBus]  csr_wdata_i,
-    output reg[`RegBus] csr_rdata_o,
+    input[`RegBusPort]  csr_wdata_i,
+    output reg[`RegBusPort] csr_rdata_o,
     // 状态寄存器必要信号
     input   inst_succ_flag
     );
 
     // 浮点累计异常
-    reg[`RegBus] fflags;
+    reg[`RegBusPort] fflags;
     // 浮点动态舍入模式
-    reg[`RegBus] frm;
+    reg[`RegBusPort] frm;
     // 浮点控制状态寄存器
-    reg[`RegBus] fcsr;
+    reg[`RegBusPort] fcsr;
     // 机器模式下状态寄存器
-    reg[`RegBus] mstatus;
+    reg[`RegBusPort] mstatus;
     // 指示当前处理器支持架构特性
-    reg[`RegBus] misa;
+    reg[`RegBusPort] misa;
     // 控制不同类型中断局部屏蔽
-    reg[`RegBus] mie;
+    reg[`RegBusPort] mie;
     // 配置异常的入口地址
-    reg[`RegBus] mtvec;
+    reg[`RegBusPort] mtvec;
     // 机器模式下程序临时保存某些数据
-    reg[`RegBus] mscratch;
+    reg[`RegBusPort] mscratch;
     // 保存进入异常之前的PC值
-    reg[`RegBus] mepc;
+    reg[`RegBusPort] mepc;
     // 保存进入异常前的出错原因，最高一位为中断域，低31位为异常编号
-    reg[`RegBus] mcause;
+    reg[`RegBusPort] mcause;
     // 保存进入异常前的出错指令编码值
-    reg[`RegBus] mtval;
+    reg[`RegBusPort] mtval;
     // 查询终端等待状态
-    reg[`RegBus] mip;
+    reg[`RegBusPort] mip;
     // 反应处理器执行了多少个时钟，共64位
-    wire[`RegBus] mcycle;
-    wire[`RegBus] mcycleh;
+    wire[`RegBusPort] mcycle;
+    wire[`RegBusPort] mcycleh;
     // 反应处理器成功执行的指令数目，可用于衡量处理器性能
-    wire[`RegBus] minstret;
-    wire[`RegBus] minstreth;
+    wire[`RegBusPort] minstret;
+    wire[`RegBusPort] minstreth;
     // 只读，供应商编号，为0，为非商业处理器
-    reg[`RegBus] mvendorid;
+    reg[`RegBusPort] mvendorid;
     // 只读，微架构编号，为0，未实现
-    reg[`RegBus] marchid;
+    reg[`RegBusPort] marchid;
     // 只读，硬件实现编号，为0，未实现
-    reg[`RegBus] mimpid;
+    reg[`RegBusPort] mimpid;
     // 只读，hartID
-    reg[`RegBus] mhartid;
+    reg[`RegBusPort] mhartid;
     // 计时器，配合mtimecmp的值以产生中断，按理来说需要放在其他位置
     // 标准RISC-V没有给他们的规定地址
-    reg[`RegBus] mtime;
-    reg[`RegBus] mtimecmp;
-    reg[`RegBus] msip;
+    reg[`RegBusPort] mtime;
+    reg[`RegBusPort] mtimecmp;
+    reg[`RegBusPort] msip;
 
     // cycle and instret
-    reg[`DoubleRegBus]  cycle,instret;
+    reg[`DoubleRegBusPort]  cycle,instret;
     assign mcycle = cycle[31:0];
     assign mcycleh = cycle[63:32];
     assign minstret = instret[31:0];

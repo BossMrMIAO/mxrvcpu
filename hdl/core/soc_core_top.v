@@ -14,38 +14,36 @@ module soc_core_top (
 );
 
 // connection wires between different component
-    reg[`RegBus] pc;
+    reg[`RegBusPort] pc;
 
     wire inst_valid;
-    wire[`RegBus] inst_data;
+    wire[`RegBusPort] inst_data;
     wire pc_send_valid;
     wire pc_receive_ready;
 
-    wire[`PORT_WORD_WIDTH] pc_ifu;
+    wire[`PORT_ADDR_WIDTH] pc_ifu;
     wire inst_ifu_valid;
-    wire[`PORT_WORD_WIDTH] inst_data_ifu_dff_bef, inst_data_ifu_dff_aft;
+    wire[`PORT_DATA_WIDTH] inst_data_ifu_dff_bef, inst_data_ifu_dff_aft;
     
 
 
-    wire[`OPCODE_WIDTH] opcode;
-    wire[`REG_ADDR_WIDTH] rd;
-    wire[`funct3_WIDTH] funct3;
-    wire[`REG_ADDR_WIDTH]   rs1,rs2;
-    wire[`funct7_WIDTH] fucnt7;
-    wire[`REG_ADDR_WIDTH] shamt;
-    wire    L_or_A_flag;
-    wire[`REG_ADDR_WIDTH] zimm;
-    wire[`PORT_WORD_WIDTH]  imm;
+    wire[`PORT_OPCODE_WIDTH] opcode_dff_bef, opcode_dff_aft;
+    wire[`PORT_REG_ADDR_WIDTH] rd_dff_bef, rd_dff_aft;
+    wire[`PORT_funct3_WIDTH] funct3_dff_bef, funct3_dff_aft;
+    wire[`PORT_REG_ADDR_WIDTH]   rs1_dff_bef, rs1_dff_aft, rs2_dff_bef, rs2_dff_aft;
+    wire[`PORT_funct7_WIDTH] funct7_dff_bef, funct7_dff_aft;
+    wire[`PORT_REG_ADDR_WIDTH] shamt_dff_bef, shamt_dff_aft;
+    wire[`PORT_R_TOGGLE_FLAG]    r_toggle_flag_r;
+    wire[`PORT_WORD_WIDTH] zimm_dff_bef, zimm_dff_aft;
+    wire[`PORT_WORD_WIDTH]  imm_dff_bef, imm_dff_aft;
 
-    wire[`RegBus] rs1_reg_data,rs2_reg_data;
-    wire[`RegBus] rd_wr_en,rd_reg_data;
+    wire[`RegBusPort] rs1_reg_data_dff_bef,rs1_reg_data_dff_aft, rs2_reg_data_dff_bef,rs2_reg_data_dff_aft;
+    wire[`RegBusPort] rd_wr_en,rd_reg_data;
     wire Hold_flag,div_busy;
 
-   
-    wire[`RegBus] rs1_addr, rs2_addr;   
+     
     wire rs1_req_rd_valid, rs2_req_rd_valid;
-    wire[`RegBus] rs1_reg_data, rs2_reg_data;
-    wire[`RegBus] rd_addr, rd_data;
+    wire[`RegBusPort] rd_addr, rd_data;
     wire rd_req_wr_valid;
 
 // initialize all component
@@ -91,17 +89,19 @@ module soc_core_top (
 
     // instance id
     id u_id (
+        .clk(clk),
+        .rst_n(rst_n),
         .inst_data_i(inst_data_ifu_dff_aft),
-        .opcode(opcode),
-        .rd(rd),
-        .funct3(funct3),
-        .rs1(rs1),
-        .rs2(rs2),
-        .funct7(funct7),
-        .shamt(shamt),
-        .L_or_A_flag(L_or_A_flag),
-        .zimm(zimm),
-        .imm(imm),
+        .opcode(opcode_dff_bef),
+        .rd(rd_dff_bef),
+        .funct3(funct3_dff_bef),
+        .rs1(rs1_dff_bef),
+        .rs2(rs2_dff_bef),
+        .funct7(funct7_dff_bef),
+        .shamt(shamt_dff_bef),
+        .r_toggle_flag(r_toggle_flag_r),
+        .zimm(zimm_dff_bef),
+        .imm(imm_dff_bef),
         .rs1_req_rd_valid_o(rs1_req_rd_valid),
         .rs2_req_rd_valid_o(rs2_req_rd_valid)
     );
@@ -121,6 +121,9 @@ module soc_core_top (
         // input[`REG_ADDR_WIDTH] shammt_dff_i,
         .zimm_dff_i(zimm_dff_bef),
         .imm_dff_i(imm_dff_bef),
+
+        .rs1_reg_data_dff_i(rs1_reg_data_dff_bef),
+        .rs1_reg_data_dff_o(rs1_reg_data_dff_aft),
         
         // data after inst decode
         .opcode_dff_o(opcode_dff_aft),
@@ -131,8 +134,11 @@ module soc_core_top (
         .funct7_dff_o(funct7_dff_aft),
         // output[`REG_ADDR_WIDTH] shammt_dff_o,
         .zimm_dff_o(zimm_dff_aft),
-        .imm_dff_o(imm_dff_aft)
-    )
+        .imm_dff_o(imm_dff_aft),
+
+        .rs2_reg_data_dff_i(rs2_reg_data_dff_bef),
+        .rs2_reg_data_dff_o(rs2_reg_data_dff_aft)
+    );
 
     // instance ex
     ex u_ex (
@@ -145,13 +151,14 @@ module soc_core_top (
         .rs2_i(rs2_dff_aft),
         .funct7_i(funct7_dff_aft),
         .shamt_i(shamt),
-        .L_or_A_flag_i(L_or_A_flag),
+        .r_toggle_flag(r_toggle_flag_r),
         .zimm_i(zimm_dff_aft),
         .imm_i(imm_dff_aft),
-        .rs1_reg_data_i(rs1_reg_data),
-        .rs2_reg_data_i(rs2_reg_data),
-        .rd_wr_en_o(rd_wr_en),
-        .rd_reg_data_o(rd_reg_data),
+        .rs1_reg_data_i(rs1_reg_data_dff_aft),
+        .rs2_reg_data_i(rs2_reg_data_dff_aft),
+        .rd_wr_en_o(rd_req_wr_valid),
+        .rd_o(rd_addr),
+        .rd_reg_data_o(rd_data),
         .Hold_flag_i(Hold_flag),
         .div_busy_i(div_busy)
     );
@@ -159,13 +166,13 @@ module soc_core_top (
     regu u_regu (
         .clk(clk),
         .rst_n(rst_n),
-        .rs1_addr_i(rs1),
-        .rs2_addr_i(rs2),
+        .rs1_i(rs1_dff_bef),
+        .rs2_i(rs2_dff_bef),
         .rs1_req_rd_valid_i(rs1_req_rd_valid),
         .rs2_req_rd_valid_i(rs2_req_rd_valid),
-        .rs1_reg_data_o(rs1_reg_data),
-        .rs2_reg_data_o(rs2_reg_data),
-        .rd_addr_i(rd_addr),
+        .rs1_reg_data_o(rs1_reg_data_dff_bef),
+        .rs2_reg_data_o(rs2_reg_data_dff_bef),
+        .rd_i(rd_addr),
         .rd_data_i(rd_data),
         .rd_req_wr_valid_i(rd_req_wr_valid)
     );

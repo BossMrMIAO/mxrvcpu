@@ -9,23 +9,24 @@ module ex (
     input clk,
     input rst_n,
     // 从指令译码中获得输入数据
-    input[`OPCODE_WIDTH]  opcode_i,
-    input[`REG_ADDR_WIDTH] rd_i,
-    input[`funct3_WIDTH]   funct3_i,
-    input[`REG_ADDR_WIDTH] rs1_i,
-    input[`REG_ADDR_WIDTH] rs2_i,
-    input[`funct7_WIDTH]   funct7_i,
-    input[`REG_ADDR_WIDTH] shamt_i,
-    input  L_or_A_flag_i,
-    input[`REG_ADDR_WIDTH] zimm_i,
+    input[`PORT_OPCODE_WIDTH]  opcode_i,
+    input[`PORT_REG_ADDR_WIDTH] rd_i,
+    input[`PORT_funct3_WIDTH]   funct3_i,
+    input[`PORT_REG_ADDR_WIDTH] rs1_i,
+    input[`PORT_REG_ADDR_WIDTH] rs2_i,
+    input[`PORT_funct7_WIDTH]   funct7_i,
+    input[`PORT_REG_ADDR_WIDTH] shamt_i,
+    input[`PORT_R_TOGGLE_FLAG]  r_toggle_flag,
+    input[`PORT_WORD_WIDTH] zimm_i,
     input[`PORT_WORD_WIDTH]    imm_i,
 
     // 结果寄存器数值
-    input[`RegBus]  rs1_reg_data_i,
-    input[`RegBus]  rs2_reg_data_i,
+    input[`RegBusPort]  rs1_reg_data_i,
+    input[`RegBusPort]  rs2_reg_data_i,
     // 回写寄存器
-    output[`RegBus] rd_wr_en_o,
-    output reg[`RegBus] rd_reg_data_o,
+    output reg rd_wr_en_o,
+    output reg rd_o,
+    output reg[`RegBusPort] rd_reg_data_o,
     // 回写存储器
 
     // 接控制单元
@@ -36,7 +37,9 @@ module ex (
 );
 
     // hold住或除法器计算中，就不要再一直不停会写寄存器了
-    assign rd_wr_en = (Hold_flag_i | div_busy_i) ? `Disable : `Enable;
+    // assign rd_wr_en_o = (Hold_flag_i | div_busy_i) ? `Disable : `Enable;
+
+    assign rd_o = rd_i;
 
     // 组合逻辑执行指令操作
     always @(*) begin
@@ -46,53 +49,169 @@ module ex (
                     //加立即数
                     `INST_ADDI: begin
                         rd_reg_data_o = imm_i + rs1_reg_data_i;
+                        rd_wr_en_o = `Enable;
                     end
                     `INST_SLTI: begin
-                        
+                        rd_reg_data_o = ($signed(rs1_reg_data_i) < $signed(imm_i) ) ? 1 : 0;
+                        rd_wr_en_o = `Enable;
                     end
-                    // `INST_ADDI, `INST_SLTI, `INST_SLTIU, `INST_XORI, `INST_ORI, `INST_ANDI: begin
-                    //     rd = inst_data_i[11:7];
-                    //     rs1 = inst_data_i[19:15];
-                    //     imm = {20'h0, inst_data_i[31:20]};
-                    // end 
-                    // `INST_SLLI, `INST_SRI: begin
-                    //     rd = inst_data_i[11:7];
-                    //     rs1 = inst_data_i[19:15];
-                    //     shamt = inst_data_i[24:20];
-                    //     L_or_A_flag = inst_data_i[30];
-                    // end
+                    `INST_SLTIU:  begin
+                        rd_reg_data_o = (rs1_reg_data_i < imm_i ) ? 1 : 0;
+                        rd_wr_en_o = `Enable;
+                    end
+                    `INST_ANDI: begin
+                        rd_reg_data_o = rs1_reg_data_i & imm_i;
+                        rd_wr_en_o = `Enable;
+                    end
+                    `INST_XORI: begin
+                        rd_reg_data_o = rs1_reg_data_i ^ imm_i;
+                        rd_wr_en_o = `Enable;
+                    end 
+                    `INST_ORI:  begin
+                        rd_reg_data_o = rs1_reg_data_i | imm_i;
+                        rd_wr_en_o = `Enable;
+                    end
+                    `INST_SLLI: begin
+                        rd_reg_data_o = rs1_reg_data_i << shamt_i;
+                        rd_wr_en_o = `Enable;
+                    end
+                    `INST_SRLI:  begin
+                        rd_reg_data_o = rs1_reg_data_i >> shamt_i;
+                        rd_wr_en_o = `Enable;
+                    end
                     default: begin
-                        
+                        rd_wr_en_o =`Disable;
                     end
                 endcase
             end
-            // `INST_TYPE_L: begin
-            //     rd = inst_data_i[11:7];
-            //     rs1 = inst_data_i[19:15];
-            //     imm = {20'h0, inst_data_i[31:20]};
-            // end
-            // `INST_TYPE_S: begin
-            //     rs1 = inst_data_i[19:15];
-            //     rs2 = inst_data_i[24:20];
-            //     imm = {20'h0, inst_data_i[31:25], inst_data_i[11:7]};
-            // end
-            // `INST_TYPE_R_M: begin
-            //     rd = inst_data_i[11:7];
-            //     rs1 = inst_data_i[19:15];
-            //     rs2 = inst_data_i[24:20];
-            //     funct7 = inst_data_i[31:25];
-            // end
-            // `INST_JAL: begin
-            //     rd = inst_data_i[11:7];
-            //     imm = {11'h0, inst_data_i[31], inst_data_i[19:12], inst_data_i[20], inst_data_i[30:21]};
-            // end
-            // `INST_JALR: begin
-            //     rd = inst_data_i[11:7];
-            //     rs1 = inst_data_i[19:15];
-            //     imm = {20'h0, inst_data_i[31:20]};
-            // end
+            `INST_TYPE_L: begin
+                case(funct3_i)
+                    // `INST_LB:    begin
+                    //     rd_reg_data_o = {24{(rs1_reg_data_i + imm_i)[7]}, (rs1_reg_data_i + imm_i)[7:0]};
+                    //     rd_wr_en_o = `Enable;
+                    // end
+                    // `INST_LH:    begin
+                    //     rd_reg_data_o = {16{(rs1_reg_data_i + imm_i)[15]}, (rs1_reg_data_i + imm_i)[15:0]};
+                    //     rd_wr_en_o = `Enable;
+                    // end
+                    // `INST_LW:    begin
+                    //     rd_reg_data_o = (rs1_reg_data_i + imm_i)[31:0];
+                    //     rd_wr_en_o = `Enable;
+                    // end
+                    // `INST_LBU:  begin
+                    //     rd_reg_data_o = {24'h0, (rs1_reg_data_i + imm_i)[7:0]};
+                    //     rd_wr_en_o = `Enable;
+                    // end
+                    // `INST_LHU:  begin
+                    //     rd_reg_data_o = {16'h0, (rs1_reg_data_i + imm_i)[15:0]};
+                    //     rd_wr_en_o = `Enable;
+                    // end
+                    default:    begin
+                        rd_wr_en_o = `Disable;
+                    end
+                endcase
+            end
+
+            `INST_TYPE_S: begin
+                case(funct3_i)
+                    `INST_SB:    begin
+                        
+                    end
+                    `INST_SH:    begin
+                        
+                    end
+                    `INST_SW:    begin
+                        
+                    end
+                    default:    begin
+                        rd_wr_en_o = `Disable;
+                    end
+                endcase
+            end
+            `INST_TYPE_R_M: begin
+                case(funct3_i)
+                    `INST_ADD_SUB:    begin
+                        rd_reg_data_o = r_toggle_flag[5] ? (rs1_reg_data_i + rs2_reg_data_i) : (rs1_reg_data_i - rs2_reg_data_i);
+                        rd_wr_en_o = `Enable;
+                    end
+                    `INST_SLL:    begin
+                        rd_reg_data_o = rs1_reg_data_i << rs2_reg_data_i;
+                        rd_wr_en_o = `Enable;
+                    end
+                    `INST_SLT:    begin
+                        // rd_reg_data_o = (rs1_reg_data_i < rs2_reg_data_i) ? 1 : 0;
+                        // rd_wr_en_o = `Enable;
+                    end
+                    `INST_SLTU:    begin
+                        rd_reg_data_o = (rs1_reg_data_i < rs2_reg_data_i) ? 1 : 0;
+                        rd_wr_en_o = `Enable;
+                    end
+                    `INST_XOR:    begin
+                        rd_reg_data_o = rs1_reg_data_i ^ rs2_reg_data_i;
+                        rd_wr_en_o = `Enable;
+                    end
+                    `INST_SR:    begin
+                        rd_reg_data_o = r_toggle_flag[5] ? (rs1_reg_data_i >> rs2_reg_data_i[4:0]) : (rs1_reg_data_i >> rs2_reg_data_i[4:0]);
+                        rd_wr_en_o = `Enable;
+                    end
+                    `INST_OR:    begin
+                        rd_reg_data_o = rs1_reg_data_i | rs2_reg_data_i;
+                        rd_wr_en_o = `Enable;
+                    end
+                    `INST_AND:    begin
+                        rd_reg_data_o = rs1_reg_data_i & rs2_reg_data_i;
+                        rd_wr_en_o = `Enable;
+                    end
+                    default:    begin
+                        rd_wr_en_o = `Disable;
+                    end
+                endcase
+            end
+            // special J type inst --- begin
+            `INST_JAL: begin
+                // rd_reg_data_o = 
+            end
+            `INST_JALR: begin
+                // rd_reg_data_o = 
+            end
+            // special J type inst --- end
+            // special U type inst --- begin
+            `INST_LUI:  begin
+                rd_reg_data_o = imm_i & 32'hffff_f000;
+                rd_wr_en_o = `Enable;
+            end
+            `INST_AUIPC:    begin
+                // rd_reg_data_o = pc + imm_i & 32'hffff_f000;
+                // rd_wr_en_o = `Enable;
+            end
+            // special U type inst --- end
+            `INST_TYPE_B:   begin
+                case(funct3_i)
+                    `INST_BEQ:  begin
+                        
+                    end
+                    `INST_BNE:  begin
+                        
+                    end
+                    `INST_BLT:  begin
+                        
+                    end
+                    `INST_BGE:  begin
+                        
+                    end
+                    `INST_BLTU: begin
+                        
+                    end
+                    `INST_BGEU: begin
+                        
+                    end
+                    default:    begin
+                        rd_wr_en_o = `Disable;
+                    end
+                endcase
+            end
             default: begin
-                
+                rd_wr_en_o = `Disable;
             end
         endcase
     end

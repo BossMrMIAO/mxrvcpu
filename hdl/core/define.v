@@ -9,14 +9,17 @@
 `define Disable 1'b0
 
 // port width declare
-`define PORT_WORD_WIDTH 31:0
-`define WORD_WIDTH      32
+`define PORT_ADDR_WIDTH 31:0
+`define PORT_DATA_WIDTH 31:0
+`define PORT_WORD_WIDTH 32
+`define WORD_WIDTH 32
 `define BYTES_IN_A_WORD 4
 
 // CSRRegBus
-`define CsrRegAddrBus   11:0
-`define RegBus  31:0
-`define DoubleRegBus    63:0
+`define CsrRegAddrBusPort   11:0
+`define RegBusPort  31:0
+`define RegBus  32
+`define DoubleRegBusPort    63:0
 
 // Common Value
 `define ZeroByte    8'h0
@@ -56,10 +59,15 @@
 
 
 // INST disassembly
-`define OPCODE_WIDTH    6:0
-`define REG_ADDR_WIDTH  4:0
-`define funct3_WIDTH    2:0
-`define funct7_WIDTH    6:0
+`define PORT_OPCODE_WIDTH    6:0
+`define PORT_REG_ADDR_WIDTH  4:0
+`define PORT_funct3_WIDTH    2:0
+`define PORT_funct7_WIDTH    6:0
+`define PORT_R_TOGGLE_FLAG   6:0
+`define OPCODE_WIDTH    7
+`define REG_ADDR_WIDTH  5
+`define funct3_WIDTH    3
+`define funct7_WIDTH    7
 
 // I type inst
 `define INST_TYPE_I 7'b0010011
@@ -70,7 +78,7 @@
 `define INST_ORI    3'b110
 `define INST_ANDI   3'b111
 `define INST_SLLI   3'b001
-`define INST_SRI    3'b101
+`define INST_SRLI   3'b101
 
 // L type inst
 `define INST_TYPE_L 7'b0000011
@@ -111,16 +119,13 @@
 `define INST_JAL    7'b1101111
 `define INST_JALR   7'b1100111
 
+// U type inst
 `define INST_LUI    7'b0110111
 `define INST_AUIPC  7'b0010111
 `define INST_NOP    32'h00000001
 `define INST_NOP_OP 7'b0000001
 `define INST_MRET   32'h30200073
 `define INST_RET    32'h00008067
-
-`define INST_FENCE  7'b0001111
-`define INST_ECALL  32'h73
-`define INST_EBREAK 32'h00100073
 
 // B type inst
 `define INST_TYPE_B 7'b1100011
@@ -139,6 +144,10 @@
 `define INST_CSRRWI 3'b101
 `define INST_CSRRSI 3'b110
 `define INST_CSRRCI 3'b111
+
+`define INST_FENCE  7'b0001111
+`define INST_ECALL  32'h73
+`define INST_EBREAK 32'h00100073
 
 // 寄存器
 `define x0      5'h0

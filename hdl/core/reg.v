@@ -9,22 +9,22 @@ module regu (
     input rst_n,
 
     // id读取信号
-    input[`RegBus] rs1_addr_i,
-    input[`RegBus] rs2_addr_i,
+    input[`RegBusPort] rs1_i,
+    input[`RegBusPort] rs2_i,
     input   rs1_req_rd_valid_i, rs2_req_rd_valid_i,
-    output reg[`RegBus] rs1_reg_data_o,
-    output reg[`RegBus] rs2_reg_data_o,
+    output reg[`RegBusPort] rs1_reg_data_o,
+    output reg[`RegBusPort] rs2_reg_data_o,
 
     // ex写回操作
-    input[`RegBus] rd_addr_i,
-    input[`RegBus] rd_data_i,
+    input[`RegBusPort] rd_i,
+    input[`RegBusPort] rd_data_i,
     input   rd_req_wr_valid_i
  
 
 );
     
     // 寄存器
-    reg [`RegBus]x_reg[0:31];
+    reg [`RegBusPort]x_reg[0:31];
 
 
 
@@ -33,14 +33,15 @@ module regu (
         if(rst_n == `RstEnable) begin
             rs1_reg_data_o = `ZeroWord;
             rs2_reg_data_o = `ZeroWord;
-            x_reg[0] = 32'h10;
-            x_reg[1] = 32'h11;
+            for (int i = 0; i < 32; i = i + 1) begin
+                x_reg[i] <= i;  // 复位时再次初始化
+            end
         end else begin
             if(rd_req_wr_valid_i)    begin
-                x_reg[rd_addr_i] = rd_data_i;
+                x_reg[rd_i] = rd_data_i;
             end else begin
-                rs1_reg_data_o = rs1_req_rd_valid_i ? x_reg[rs1_addr_i] : `ZeroWord;
-                rs2_reg_data_o = rs2_req_rd_valid_i ? x_reg[rs2_addr_i] : `ZeroWord;
+                rs1_reg_data_o = rs1_req_rd_valid_i ? x_reg[rs1_i] : `ZeroWord;
+                rs2_reg_data_o = rs2_req_rd_valid_i ? x_reg[rs2_i] : `ZeroWord;
             end
         end
     end

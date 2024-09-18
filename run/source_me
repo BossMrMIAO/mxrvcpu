@@ -10,6 +10,9 @@ alias mr="make run TEST_CASE=mcdf_full_random_test"
 alias mr1="make run TEST_CASE=mcdf_base_test"
 alias mr2="make run TEST_CASE=mcdf_data_consistence_basic_test"
 alias mr3="make run TEST_CASE=mcdf_reg_builtin_test"
+alias mrv="make run && make verdi"
+alias mve="make verdi"
+alias mcl="make clean"
 
 
 alias sim='cd $RUN_DIR/../sim'

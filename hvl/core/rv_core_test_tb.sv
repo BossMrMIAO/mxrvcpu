@@ -3,11 +3,11 @@
 //*****************************************
 `timescale 1ns/1ps
 
-module ifu_test_tb ();
+module rv_core_test_tb ();
 
     reg clk;
     reg rst_n;
-
+/*
 // ifu test
     reg[`PORT_ADDR_WIDTH] pc;
 
@@ -16,30 +16,30 @@ module ifu_test_tb ();
     wire pc_send_valid;
     wire pc_receive_ready;
 
-    wire[`ADDR_WIDTH] pc_ifu;
+    wire[`PORT_ADDR_WIDTH] pc_ifu;
     wire inst_ifu_valid;
-    wire[`DATA_WIDTH] inst_data_ifu;
+    wire[`PORT_DATA_WIDTH] inst_data_ifu;
 
 
-    wire[`PORT_OPCODE_WIDTH] opcode;
-    wire[`PORT_REG_ADDR_WIDTH] rd;
-    wire[`PORT_funct3_WIDTH] funct3;
-    wire[`PORT_REG_ADDR_WIDTH]   rs1,rs2;
-    wire[`PORT_funct7_WIDTH] fucnt7;
-    wire[`PORT_REG_ADDR_WIDTH] shamt;
+    wire[`OPCODE_WIDTH] opcode;
+    wire[`REG_ADDR_WIDTH] rd;
+    wire[`funct3_WIDTH] funct3;
+    wire[`REG_ADDR_WIDTH]   rs1,rs2;
+    wire[`funct7_WIDTH] fucnt7;
+    wire[`REG_ADDR_WIDTH] shamt;
     wire    L_or_A_flag;
     wire[`PORT_WORD_WIDTH] zimm;
     wire[`PORT_WORD_WIDTH]  imm;
 
-    wire[`RegBus] rs1_reg_data,rs2_reg_data;
-    wire[`RegBus] rd_wr_en,rd_reg_data;
+    wire[`RegBusPort] rs1_reg_data,rs2_reg_data;
+    wire[`RegBusPort] rd_wr_en,rd_reg_data;
     wire Hold_flag,div_busy;
 
    
-    wire[`RegBus] rs1_addr, rs2_addr;   
+    wire[`RegBusPort] rs1_addr, rs2_addr;   
     wire rs1_req_rd_valid, rs2_req_rd_valid;
-    wire[`RegBus] rs1_reg_data, rs2_reg_data;
-    wire[`RegBus] rd_addr, rd_data;
+    wire[`RegBusPort] rs1_reg_data, rs2_reg_data;
+    wire[`RegBusPort] rd_addr, rd_data;
     wire rd_req_wr_valid;
 
     ifu u_ifu (
@@ -127,10 +127,16 @@ module ifu_test_tb ();
 
     // initial ROM for load inst. content
     initial begin
-        $readmemh ("inst.data", ifu_test_tb.u_rom.INST_ROM);
+        $readmemh ("inst.data", rv_core_test_tb.u_rom.INST_ROM);
     end
     
+*/
 
+
+    soc_core_top u_soc_core_top (
+        .clk(clk),
+        .rst_n(rst_n)
+    );
 
 
 // CLK_ENV
@@ -151,6 +157,11 @@ module ifu_test_tb ();
         rst_n = 1;
     end
 
+    // initial ROM for load inst. content
+    initial begin
+        $readmemh ("inst.data", rv_core_test_tb.u_soc_core_top.u_rom.INST_ROM);
+    end
+
     // sim timeout
     initial begin
         #10000
@@ -162,7 +173,7 @@ module ifu_test_tb ();
     initial begin
         // $dumpfile("tb.vcd");
         $dumpfile("tb.fsdb");
-        $dumpvars(0, ifu_test_tb);
+        $dumpvars(0, rv_core_test_tb);
     end
 
 

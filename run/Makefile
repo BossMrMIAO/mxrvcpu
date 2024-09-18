@@ -18,7 +18,7 @@ RUN_AFTER_COMP ?= 1
 LOG_OPT ?= -l $(SIM_DIR)/$(TEST_CASE).log
 DEFINE_OPT ?= +define+UVM_REG_GET_BASE_RESPONSE_WITHOUT_REQ_ID
 # DEFINE_OPT += +define+BASIC_SIM_ENV+PC_REG_TEST
-IES_OPT := -full64  $(RUN_OPT)  +vc  +v2k  -sverilog +seed=$(SEED) -debug_access+all -fsdb -top ifu_test_tb
+IES_OPT := -full64  $(RUN_OPT)  +vc  +v2k  -sverilog +seed=$(SEED) -debug_access+all -fsdb -top rv_core_test_tb
 
 #----------------------------------------
 #	logic control
@@ -59,7 +59,10 @@ simv	:
 #	verdi
 #----------------------------------------
 verdi  :
-	verdi -sv -f $(FILELIST_OPT) -ssf tb.fsdb &
+	verdi -sv \
+		$(FILELIST_OPT) \
+		-ssf tb.fsdb \
+		-sswr signal.rc &	
 
 
 #----------------------------------------

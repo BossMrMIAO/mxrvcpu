@@ -11,14 +11,14 @@ module if_id_dff #(
     input rst_n,
 
     // signals to be transfer from ifu
-    input[`PORT_WORD_WIDTH] inst_data_dff_i,
-    output[`PORT_WORD_WIDTH] inst_data_dff_O
+    input[`PORT_DATA_WIDTH] inst_data_dff_i,
+    output[`PORT_DATA_WIDTH] inst_data_dff_O
     
 );
 
-    s_bits_dff u_s_bits_dff(
-        bits_width = WORD_WIDTH
-    ) (
+    s_bits_dff #(
+        .bits_width(`WORD_WIDTH)
+    ) u_s_bits_dff_0_0  (
         .clk(clk),
         .rst_n(rst_n),
         .d(inst_data_dff_i),

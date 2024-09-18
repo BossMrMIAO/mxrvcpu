@@ -8,15 +8,15 @@ module rom (
     input clk,
     input rst_n,
     // from if
-    input[`PORT_WORD_WIDTH] pc_i,
+    input[`PORT_ADDR_WIDTH] pc_i,
     input pc_send_valid_i,
     output reg pc_receive_ready_o,
     // to if
-    output reg[`PORT_WORD_WIDTH] inst_data_o,
+    output reg[`PORT_DATA_WIDTH] inst_data_o,
     output reg inst_valid_o
 );
 
-    reg [`RegBus]INST_ROM[0:127];
+    reg [`PORT_ADDR_WIDTH]INST_ROM[0:127];
 
 
     always @(posedge clk or negedge rst_n) begin

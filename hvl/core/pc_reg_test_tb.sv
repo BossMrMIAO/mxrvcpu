@@ -12,7 +12,7 @@ module pc_reg_test_tb ();
 //PC_REG_TEST
     // jump signals
     reg jump_flag;
-    reg [`PORT_WORD_WIDTH]  jump_addr;
+    reg [`PORT_ADDR_WIDTH]  jump_addr;
 
     // hold signals
     reg hold_flag;
@@ -20,9 +20,9 @@ module pc_reg_test_tb ();
 
     // csr_reg_signal
     reg we;
-    reg[`RegBus] csr_addr;
-    reg[`RegBus] csr_wdata;
-    reg[`RegBus] csr_rdata;
+    reg[`RegBusPort] csr_addr;
+    reg[`RegBusPort] csr_wdata;
+    reg[`RegBusPort] csr_rdata;
     
     // instance pc_reg
     pc_reg u_pc_reg (

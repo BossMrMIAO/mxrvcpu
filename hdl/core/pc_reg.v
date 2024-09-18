@@ -14,13 +14,13 @@ module pc_reg (
     input   hold_flag_i,
     // jump跳转信号有效，该状态会装载由jump_addr_i
     input   jump_flag_i,
-    input [`PORT_WORD_WIDTH]  jump_addr_i,
+    input [`PORT_ADDR_WIDTH]  jump_addr_i,
 
     // 输出wire类型PC值
-    output [`PORT_WORD_WIDTH]    pc_o
+    output [`PORT_ADDR_WIDTH]    pc_o
 );
 
-    reg [`PORT_WORD_WIDTH]   pc_reg;
+    reg [`PORT_ADDR_WIDTH]   pc_reg;
 
     assign pc_o = pc_reg;
 
