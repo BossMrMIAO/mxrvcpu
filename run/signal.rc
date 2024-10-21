@@ -2,11 +2,11 @@ Magic 271485
 Revision Verdi_O-2018.09-SP2
 
 ; Window Layout <x> <y> <width> <height> <signalwidth> <valuewidth>
-viewPort -32 -32 1428 819 207 117
+viewPort 1248 -32 1428 819 207 117
 
 ; File list:
 ; openDirFile [-d delimiter] [-s time_offset] [-rf auto_bus_rule_file] path_name file_name
-openDirFile -d / "" "/mnt/e/Desktop/mxrvcpu/run/tb.fsdb" "/mnt/e/Desktop/mxrvcpu/run/tb.fsdb.fsdb"
+openDirFile -d / -i 0 "" "/mnt/e/Desktop/mxrvcpu/run/tb.fsdb" "/mnt/e/Desktop/mxrvcpu/run/tb.fsdb.fsdb"
 
 ; file time scale:
 ; fileTimeScale ### s|ms|us|ns|ps
@@ -16,14 +16,12 @@ signalSpacing 5
 
 ; windowTimeUnit is used for zoom, cursor & marker
 ; waveform viewport range
-zoom 0.000000 546139.157852
-cursor 270000.000000
+zoom 0.000000 300978.741553
+cursor 110000.000000
 marker 0.000000
 
-; user define markers
-; userMarker time_pos marker_name color linestyle
 ; visible top row signal index
-top 30
+top 0
 ; marker line index
 markerPos 54
 
@@ -77,9 +75,6 @@ addSignal -h 15 -holdScope rs1[4:0]
 addSignal -h 15 -holdScope rs2[4:0]
 addSignal -h 15 -holdScope funct7[6:0]
 addSignal -h 15 -holdScope shamt[4:0]
-addSignal -h 15 -holdScope L_or_A_flag
-addSignal -h 15 -holdScope zimm[0:31]
-addSignal -h 15 -holdScope imm[0:31]
 addSignal -h 15 -holdScope rs1_req_rd_valid_o
 addSignal -h 15 -holdScope rs2_req_rd_valid_o
 addSignal -h 15 -holdScope id_err_o
@@ -90,9 +85,6 @@ addSignal -h 15 -holdScope rs1_i[4:0]
 addSignal -h 15 -holdScope rs2_i[4:0]
 addSignal -h 15 -holdScope funct7_i[6:0]
 addSignal -h 15 -holdScope shamt_i[4:0]
-addSignal -h 15 -holdScope L_or_A_flag_i
-addSignal -h 15 -holdScope zimm_i[0:31]
-addSignal -h 15 -holdScope imm_i[0:31]
 addSignal -h 15 -holdScope rs1_reg_data_i[31:0]
 addSignal -h 15 -holdScope rs2_reg_data_i[31:0]
 addSignal -h 15 -holdScope rd_wr_en_o

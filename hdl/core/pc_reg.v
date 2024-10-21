@@ -7,6 +7,8 @@
 // 2024.8.1 check OK. Done
 //**************************************************
 
+`include "define.v"
+
 module pc_reg (
     input   clk,
     input   rst_n,

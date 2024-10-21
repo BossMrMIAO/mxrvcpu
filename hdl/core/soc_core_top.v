@@ -7,6 +7,8 @@ PC_REG,
 
 */
 
+`include "define.v"
+
 
 module soc_core_top (
     input   clk,

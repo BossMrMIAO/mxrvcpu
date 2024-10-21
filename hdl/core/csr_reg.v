@@ -6,7 +6,7 @@
 // 需要定义大量宏以提高可读性
 // 参考文档应当包含书籍或官方文档
 
-// `include "define.v"
+`include "define.v"
 
 module csr_reg (
     // global clock

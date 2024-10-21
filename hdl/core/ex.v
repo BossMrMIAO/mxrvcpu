@@ -5,9 +5,13 @@
 // 执行模块也应该用组合逻辑
 //****************************************
 
+`include "define.v"
+
 module ex (
     input clk,
     input rst_n,
+
+ 
     // 从指令译码中获得输入数据
     input[`PORT_OPCODE_WIDTH]  opcode_i,
     input[`PORT_REG_ADDR_WIDTH] rd_i,
@@ -25,7 +29,7 @@ module ex (
     input[`RegBusPort]  rs2_reg_data_i,
     // 回写寄存器
     output reg rd_wr_en_o,
-    output reg rd_o,
+    output wire rd_o,
     output reg[`RegBusPort] rd_reg_data_o,
     // 回写存储器
 
@@ -36,17 +40,20 @@ module ex (
     input div_busy_i
 );
 
+    wire[`PORT_WORD_WIDTH] rs1_plus_imm;
+
     // hold住或除法器计算中，就不要再一直不停会写寄存器了
     // assign rd_wr_en_o = (Hold_flag_i | div_busy_i) ? `Disable : `Enable;
 
     assign rd_o = rd_i;
+    assign rs1_plus_imm = rs1_reg_data_i + imm_i;
 
     // 组合逻辑执行指令操作
     always @(*) begin
         case (opcode_i)
             `INST_TYPE_I: begin
                 case (funct3_i)
-                    //加立即数
+                    // add immedite data
                     `INST_ADDI: begin
                         rd_reg_data_o = imm_i + rs1_reg_data_i;
                         rd_wr_en_o = `Enable;
@@ -87,7 +94,7 @@ module ex (
             `INST_TYPE_L: begin
                 case(funct3_i)
                     // `INST_LB:    begin
-                    //     rd_reg_data_o = {24{(rs1_reg_data_i + imm_i)[7]}, (rs1_reg_data_i + imm_i)[7:0]};
+                    //     rd_reg_data_o = {24{rs1_plus_imm[7]}, rs1_plus_imm[7:0]};
                     //     rd_wr_en_o = `Enable;
                     // end
                     // `INST_LH:    begin
@@ -98,11 +105,11 @@ module ex (
                     //     rd_reg_data_o = (rs1_reg_data_i + imm_i)[31:0];
                     //     rd_wr_en_o = `Enable;
                     // end
-                    // `INST_LBU:  begin
+                    // `INST_LBU:   begin
                     //     rd_reg_data_o = {24'h0, (rs1_reg_data_i + imm_i)[7:0]};
                     //     rd_wr_en_o = `Enable;
                     // end
-                    // `INST_LHU:  begin
+                    // `INST_LHU:   begin
                     //     rd_reg_data_o = {16'h0, (rs1_reg_data_i + imm_i)[15:0]};
                     //     rd_wr_en_o = `Enable;
                     // end
@@ -139,8 +146,8 @@ module ex (
                         rd_wr_en_o = `Enable;
                     end
                     `INST_SLT:    begin
-                        // rd_reg_data_o = (rs1_reg_data_i < rs2_reg_data_i) ? 1 : 0;
-                        // rd_wr_en_o = `Enable;
+                        rd_reg_data_o = ($signed(rs1_reg_data_i) < $signed(rs2_reg_data_i)) ? 1 : 0;
+                        rd_wr_en_o = `Enable;
                     end
                     `INST_SLTU:    begin
                         rd_reg_data_o = (rs1_reg_data_i < rs2_reg_data_i) ? 1 : 0;
@@ -203,6 +210,32 @@ module ex (
                         
                     end
                     `INST_BGEU: begin
+                        
+                    end
+                    default:    begin
+                        rd_wr_en_o = `Disable;
+                    end
+                endcase
+            end
+            // CSR INST
+            `INST_CSR:  begin
+                case (funct3_i)
+                    `INST_CSRRW:    begin
+                        
+                    end 
+                    `INST_CSRRS:    begin
+                        
+                    end
+                    `INST_CSRRC:    begin
+                        
+                    end
+                    `INST_CSRRWI:   begin
+                        
+                    end
+                    `INST_CSRRSI:   begin
+                        
+                    end
+                    `INST_CSRRCI:   begin
                         
                     end
                     default:    begin

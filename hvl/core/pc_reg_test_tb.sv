@@ -4,6 +4,8 @@
 //*****************************************
 `timescale 1ns/1ps
 
+`include "../../hdl/core/define.v"
+
 module pc_reg_test_tb ();
 
     reg clk;

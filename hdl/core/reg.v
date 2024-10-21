@@ -4,6 +4,8 @@
 // 给id提供两个源寄存器数据接口，给ex提供回写rd寄存器数据接口
 //*****************************************************
 
+`include "define.v"
+
 module regu (
     input clk,
     input rst_n,

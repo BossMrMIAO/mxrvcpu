@@ -1,5 +1,3 @@
-$RUN_DIR/../hdl/core/define.v
-
 // basic unit
 $RUN_DIR/../hdl/core/unit/s_bits_dff.v
 

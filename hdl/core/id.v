@@ -4,10 +4,14 @@
 // 整个是一个纯组合逻辑器件，用于拆分传入的指令，并分装到输出接口上
 //************************************
 
+`include "define.v"
+
 module id (
     // Global clock and reset for initial all logic output
     input clk,
     input rst_n,
+    // pass pc
+    input pc_id_i,
     // inst
     input[`PORT_DATA_WIDTH] inst_data_i,
     // 输出拆解信号
@@ -21,6 +25,7 @@ module id (
     output reg[`PORT_R_TOGGLE_FLAG]  r_toggle_flag,
     output reg[`PORT_WORD_WIDTH] zimm,
     output reg[`PORT_WORD_WIDTH]    imm,
+    output reg[`PORT_CSR_WIDTH]     csr,
 
     // rom valid signal
     output rs1_req_rd_valid_o, rs2_req_rd_valid_o,
@@ -110,6 +115,26 @@ module id (
                     rs2 = inst_data_i[24:20];
                     imm = {19'h0, inst_data_i[31], inst_data_i[7], inst_data_i[30:25], inst_data_i[11:8], 1'h0};
                     id_err_o = `Disable;
+                end
+                // CSR inst
+                `INST_CSR:  begin
+                    case (funct3)
+                        `INST_CSRRW, `INST_CSRRS, `INST_CSRRC:    begin
+                            rs1 = inst_data_i[19:15];
+                            rd = inst_data_i[11:7];
+                            csr = inst_data_i[31:20];
+                            id_err_o = `Disable;
+                        end 
+                        `INST_CSRRWI, `INST_CSRRSI, `INST_CSRRC:    begin
+                            rd = inst_data_i[11:7];
+                            zimm = inst_data_i[19:15];
+                            csr = inst_data_i[31:20];
+                            id_err_o = `Disable;
+                        end
+                        default:    begin
+                            id_err_o = `Enable;
+                        end
+                    endcase
                 end
                 default: begin
                     // err or start state

@@ -3,6 +3,7 @@
 // funtion: 存储指令，一般按顺序寻址，由pc值来寻址
 //***********************************************
 
+`include "define.v"
 
 module rom (
     input clk,

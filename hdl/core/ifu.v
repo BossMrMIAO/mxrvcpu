@@ -7,6 +7,8 @@
 // 4.暂时可不考虑特殊的逻辑，因为hold或jump状态直接操作了pc地址，这里会被动改变状态
 //**************************************************
 
+`include "define.v"
+
 module ifu (
     // global clock
     input clk,

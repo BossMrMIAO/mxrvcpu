@@ -11,7 +11,7 @@
 // port width declare
 `define PORT_ADDR_WIDTH 31:0
 `define PORT_DATA_WIDTH 31:0
-`define PORT_WORD_WIDTH 32
+`define PORT_WORD_WIDTH 31:0
 `define WORD_WIDTH 32
 `define BYTES_IN_A_WORD 4
 
@@ -63,7 +63,9 @@
 `define PORT_REG_ADDR_WIDTH  4:0
 `define PORT_funct3_WIDTH    2:0
 `define PORT_funct7_WIDTH    6:0
+`define PORT_CSR_WIDTH      11:0
 `define PORT_R_TOGGLE_FLAG   6:0
+
 `define OPCODE_WIDTH    7
 `define REG_ADDR_WIDTH  5
 `define funct3_WIDTH    3

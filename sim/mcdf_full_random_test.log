@@ -3,12 +3,12 @@ Warning-[LINX_KRNL] Unsupported Linux kernel
   Linux kernel '5.15.153.1-microsoft-standard-WSL2' is not supported.
   Supported versions are 2.4* or 2.6*.
 
-Command: vcs -f ../filelist/inc.lst -f ../filelist/hdl.lst -f ../filelist/hvl.lst \
--timescale=1ns/1ps +define+UVM_REG_GET_BASE_RESPONSE_WITHOUT_REQ_ID -full64 +vc +v2k \
--sverilog +seed=20240919001243 -debug_access+all -fsdb -top rv_core_test_tb -R -l \
-/mnt/e/Desktop/mxrvcpu/run/../sim/mcdf_full_random_test.log
+Command: vcs -f ../filelist/inc.f -f ../filelist/hdl.f -f ../filelist/hvl.f -timescale=1ns/1ps \
++define+UVM_REG_GET_BASE_RESPONSE_WITHOUT_REQ_ID -full64 +vc +v2k -sverilog +seed=20241018000042 \
+-debug_access+all -fsdb -top rv_core_test_tb -R -l /mnt/e/Desktop/mxrvcpu/run/../sim/mcdf_full_random_test.log \
+
                          Chronologic VCS (TM)
-       Version O-2018.09-SP2_Full64 -- Thu Sep 19 00:12:44 2024
+       Version O-2018.09-SP2_Full64 -- Fri Oct 18 00:00:44 2024
                Copyright (c) 1991-2018 by Synopsys Inc.
                          ALL RIGHTS RESERVED
 
@@ -16,83 +16,102 @@ This program is proprietary and confidential information of Synopsys Inc.
 and may be used and disclosed only as authorized in a license agreement
 controlling such use and disclosure.
 
-Parsing design file '/mnt/e/Desktop/mxrvcpu/run/../hdl/core/define.v'
 Parsing design file '/mnt/e/Desktop/mxrvcpu/run/../hdl/core/unit/s_bits_dff.v'
 Parsing included file '/mnt/e/Desktop/mxrvcpu/run/../hdl/core/define.v'.
 Back to file '/mnt/e/Desktop/mxrvcpu/run/../hdl/core/unit/s_bits_dff.v'.
 Parsing design file '/mnt/e/Desktop/mxrvcpu/run/../hdl/core/csr_reg.v'
+Parsing included file '/mnt/e/Desktop/mxrvcpu/run/../hdl/core/define.v'.
+Back to file '/mnt/e/Desktop/mxrvcpu/run/../hdl/core/csr_reg.v'.
 Parsing design file '/mnt/e/Desktop/mxrvcpu/run/../hdl/core/ctrl.v'
 Parsing design file '/mnt/e/Desktop/mxrvcpu/run/../hdl/core/pc_reg.v'
+Parsing included file '/mnt/e/Desktop/mxrvcpu/run/../hdl/core/define.v'.
+Back to file '/mnt/e/Desktop/mxrvcpu/run/../hdl/core/pc_reg.v'.
 Parsing design file '/mnt/e/Desktop/mxrvcpu/run/../hdl/core/reg.v'
+Parsing included file '/mnt/e/Desktop/mxrvcpu/run/../hdl/core/define.v'.
+Back to file '/mnt/e/Desktop/mxrvcpu/run/../hdl/core/reg.v'.
 Parsing design file '/mnt/e/Desktop/mxrvcpu/run/../hdl/core/ifu.v'
+Parsing included file '/mnt/e/Desktop/mxrvcpu/run/../hdl/core/define.v'.
+Back to file '/mnt/e/Desktop/mxrvcpu/run/../hdl/core/ifu.v'.
 Parsing design file '/mnt/e/Desktop/mxrvcpu/run/../hdl/core/if_id_dff.v'
+Parsing included file '/mnt/e/Desktop/mxrvcpu/run/../hdl/core/define.v'.
+Back to file '/mnt/e/Desktop/mxrvcpu/run/../hdl/core/if_id_dff.v'.
 Parsing design file '/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id.v'
+Parsing included file '/mnt/e/Desktop/mxrvcpu/run/../hdl/core/define.v'.
+Back to file '/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id.v'.
 Parsing design file '/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v'
+Parsing included file '/mnt/e/Desktop/mxrvcpu/run/../hdl/core/define.v'.
+Back to file '/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v'.
 Parsing design file '/mnt/e/Desktop/mxrvcpu/run/../hdl/core/ex.v'
+Parsing included file '/mnt/e/Desktop/mxrvcpu/run/../hdl/core/define.v'.
+Back to file '/mnt/e/Desktop/mxrvcpu/run/../hdl/core/ex.v'.
 Parsing design file '/mnt/e/Desktop/mxrvcpu/run/../hdl/core/rom.v'
+Parsing included file '/mnt/e/Desktop/mxrvcpu/run/../hdl/core/define.v'.
+Back to file '/mnt/e/Desktop/mxrvcpu/run/../hdl/core/rom.v'.
 Parsing design file '/mnt/e/Desktop/mxrvcpu/run/../hdl/core/soc_core_top.v'
+Parsing included file '/mnt/e/Desktop/mxrvcpu/run/../hdl/core/define.v'.
+Back to file '/mnt/e/Desktop/mxrvcpu/run/../hdl/core/soc_core_top.v'.
 Parsing design file '/mnt/e/Desktop/mxrvcpu/run/../hvl/core/rv_core_test_tb.sv'
 Top Level Modules:
        rv_core_test_tb
 
 Warning-[AOUP] Attempt to override undefined parameter
-/mnt/e/Desktop/mxrvcpu/run/../hdl/core/if_id_dff.v, 21
+/mnt/e/Desktop/mxrvcpu/run/../hdl/core/if_id_dff.v, 23
   Attempting to override undefined parameter "bits_width", will ignore it.
 
 
 Warning-[AOUP] Attempt to override undefined parameter
-/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 38
+/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 40
   Attempting to override undefined parameter "bits_width", will ignore it.
 
 
 Warning-[AOUP] Attempt to override undefined parameter
-/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 41
+/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 43
   Attempting to override undefined parameter "bits_width", will ignore it.
 
 
 Warning-[AOUP] Attempt to override undefined parameter
-/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 44
+/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 46
   Attempting to override undefined parameter "bits_width", will ignore it.
 
 
 Warning-[AOUP] Attempt to override undefined parameter
-/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 47
+/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 49
   Attempting to override undefined parameter "bits_width", will ignore it.
 
 
 Warning-[AOUP] Attempt to override undefined parameter
-/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 50
+/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 52
   Attempting to override undefined parameter "bits_width", will ignore it.
 
 
 Warning-[AOUP] Attempt to override undefined parameter
-/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 53
+/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 55
   Attempting to override undefined parameter "bits_width", will ignore it.
 
 
 Warning-[AOUP] Attempt to override undefined parameter
-/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 56
+/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 58
   Attempting to override undefined parameter "bits_width", will ignore it.
 
 
 Warning-[AOUP] Attempt to override undefined parameter
-/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 59
+/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 61
   Attempting to override undefined parameter "bits_width", will ignore it.
 
 
 Warning-[AOUP] Attempt to override undefined parameter
-/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 63
+/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 65
   Attempting to override undefined parameter "bits_width", will ignore it.
 
 
 Warning-[AOUP] Attempt to override undefined parameter
-/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 66
+/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 68
   Attempting to override undefined parameter "bits_width", will ignore it.
 
 TimeScale is 1 ns / 1 ps
 
 Warning-[TFIPC] Too few instance port connections
-/mnt/e/Desktop/mxrvcpu/run/../hdl/core/soc_core_top.v, 52
+/mnt/e/Desktop/mxrvcpu/run/../hdl/core/soc_core_top.v, 54
 soc_core_top, "pc_reg u_pc_reg( .clk (clk),  .rst_n (rst_n),  .pc_o (pc));"
   The above instance has fewer port connections than the module definition.
   Please use '+lint=TFIPC-L' to print out detailed information of unconnected 
@@ -100,7 +119,7 @@ soc_core_top, "pc_reg u_pc_reg( .clk (clk),  .rst_n (rst_n),  .pc_o (pc));"
 
 
 Warning-[TFIPC] Too few instance port connections
-/mnt/e/Desktop/mxrvcpu/run/../hdl/core/soc_core_top.v, 91
+/mnt/e/Desktop/mxrvcpu/run/../hdl/core/soc_core_top.v, 93
 soc_core_top, "id u_id( .clk (clk),  .rst_n (rst_n),  .inst_data_i (inst_data_ifu_dff_aft),  .opcode (opcode_dff_bef),  .rd (rd_dff_bef),  .funct3 (funct3_dff_bef),  .rs1 (rs1_dff_bef),  .rs2 (rs2_dff_bef),  .funct7 (funct7_dff_bef),  .shamt (shamt_dff_bef),  .r_toggle_flag (r_toggle_flag_r),  .zimm (zimm_dff_bef),  .imm (imm_dff_bef),  .rs1_req_rd_valid_o (rs1_req_rd_valid),  .rs2_req_rd_valid_o (rs2_req_rd_valid));"
   The above instance has fewer port connections than the module definition.
   Please use '+lint=TFIPC-L' to print out detailed information of unconnected 
@@ -108,7 +127,7 @@ soc_core_top, "id u_id( .clk (clk),  .rst_n (rst_n),  .inst_data_i (inst_data_if
 
 
 Warning-[PCWM-W] Port connection width mismatch
-/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 38
+/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 40
 "s_bits_dff u_s_bits_dff_1_0( .clk (clk),  .rst_n (rst_n),  .d (opcode_dff_i),  .q (opcode_dff_o));"
   The following 7-bit expression is connected to 32-bit port "d" of module 
   "s_bits_dff", instance "u_s_bits_dff_1_0".
@@ -117,7 +136,7 @@ Warning-[PCWM-W] Port connection width mismatch
 
 
 Warning-[PCWM-W] Port connection width mismatch
-/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 38
+/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 40
 "s_bits_dff u_s_bits_dff_1_0( .clk (clk),  .rst_n (rst_n),  .d (opcode_dff_i),  .q (opcode_dff_o));"
   The following 7-bit expression is connected to 32-bit port "q" of module 
   "s_bits_dff", instance "u_s_bits_dff_1_0".
@@ -126,7 +145,7 @@ Warning-[PCWM-W] Port connection width mismatch
 
 
 Warning-[PCWM-W] Port connection width mismatch
-/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 41
+/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 43
 "s_bits_dff u_s_bits_dff_1_1( .clk (clk),  .rst_n (rst_n),  .d (rd_dff_i),  .q (rd_dff_o));"
   The following 5-bit expression is connected to 32-bit port "d" of module 
   "s_bits_dff", instance "u_s_bits_dff_1_1".
@@ -135,7 +154,7 @@ Warning-[PCWM-W] Port connection width mismatch
 
 
 Warning-[PCWM-W] Port connection width mismatch
-/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 41
+/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 43
 "s_bits_dff u_s_bits_dff_1_1( .clk (clk),  .rst_n (rst_n),  .d (rd_dff_i),  .q (rd_dff_o));"
   The following 5-bit expression is connected to 32-bit port "q" of module 
   "s_bits_dff", instance "u_s_bits_dff_1_1".
@@ -144,7 +163,7 @@ Warning-[PCWM-W] Port connection width mismatch
 
 
 Warning-[PCWM-W] Port connection width mismatch
-/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 44
+/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 46
 "s_bits_dff u_s_bits_dff_1_2( .clk (clk),  .rst_n (rst_n),  .d (rs1_dff_i),  .q (rs1_dff_o));"
   The following 5-bit expression is connected to 32-bit port "d" of module 
   "s_bits_dff", instance "u_s_bits_dff_1_2".
@@ -153,7 +172,7 @@ Warning-[PCWM-W] Port connection width mismatch
 
 
 Warning-[PCWM-W] Port connection width mismatch
-/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 44
+/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 46
 "s_bits_dff u_s_bits_dff_1_2( .clk (clk),  .rst_n (rst_n),  .d (rs1_dff_i),  .q (rs1_dff_o));"
   The following 5-bit expression is connected to 32-bit port "q" of module 
   "s_bits_dff", instance "u_s_bits_dff_1_2".
@@ -162,7 +181,7 @@ Warning-[PCWM-W] Port connection width mismatch
 
 
 Warning-[PCWM-W] Port connection width mismatch
-/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 47
+/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 49
 "s_bits_dff u_s_bits_dff_1_3( .clk (clk),  .rst_n (rst_n),  .d (rs2_dff_i),  .q (rs2_dff_o));"
   The following 5-bit expression is connected to 32-bit port "d" of module 
   "s_bits_dff", instance "u_s_bits_dff_1_3".
@@ -171,7 +190,7 @@ Warning-[PCWM-W] Port connection width mismatch
 
 
 Warning-[PCWM-W] Port connection width mismatch
-/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 47
+/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 49
 "s_bits_dff u_s_bits_dff_1_3( .clk (clk),  .rst_n (rst_n),  .d (rs2_dff_i),  .q (rs2_dff_o));"
   The following 5-bit expression is connected to 32-bit port "q" of module 
   "s_bits_dff", instance "u_s_bits_dff_1_3".
@@ -180,7 +199,7 @@ Warning-[PCWM-W] Port connection width mismatch
 
 
 Warning-[PCWM-W] Port connection width mismatch
-/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 50
+/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 52
 "s_bits_dff u_s_bits_dff_1_4( .clk (clk),  .rst_n (rst_n),  .d (funct3_dff_i),  .q (funct3_dff_o));"
   The following 3-bit expression is connected to 32-bit port "d" of module 
   "s_bits_dff", instance "u_s_bits_dff_1_4".
@@ -189,7 +208,7 @@ Warning-[PCWM-W] Port connection width mismatch
 
 
 Warning-[PCWM-W] Port connection width mismatch
-/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 50
+/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 52
 "s_bits_dff u_s_bits_dff_1_4( .clk (clk),  .rst_n (rst_n),  .d (funct3_dff_i),  .q (funct3_dff_o));"
   The following 3-bit expression is connected to 32-bit port "q" of module 
   "s_bits_dff", instance "u_s_bits_dff_1_4".
@@ -198,7 +217,7 @@ Warning-[PCWM-W] Port connection width mismatch
 
 
 Warning-[PCWM-W] Port connection width mismatch
-/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 53
+/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 55
 "s_bits_dff u_s_bits_dff_1_5( .clk (clk),  .rst_n (rst_n),  .d (funct7_dff_i),  .q (funct7_dff_o));"
   The following 7-bit expression is connected to 32-bit port "d" of module 
   "s_bits_dff", instance "u_s_bits_dff_1_5".
@@ -207,7 +226,7 @@ Warning-[PCWM-W] Port connection width mismatch
 
 
 Warning-[PCWM-W] Port connection width mismatch
-/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 53
+/mnt/e/Desktop/mxrvcpu/run/../hdl/core/id_ex_dff.v, 55
 "s_bits_dff u_s_bits_dff_1_5( .clk (clk),  .rst_n (rst_n),  .d (funct7_dff_i),  .q (funct7_dff_o));"
   The following 7-bit expression is connected to 32-bit port "q" of module 
   "s_bits_dff", instance "u_s_bits_dff_1_5".
@@ -216,13 +235,13 @@ Warning-[PCWM-W] Port connection width mismatch
 
 
 Warning-[IWNF] Implicit wire has no fanin
-/mnt/e/Desktop/mxrvcpu/run/../hdl/core/soc_core_top.v, 153
+/mnt/e/Desktop/mxrvcpu/run/../hdl/core/soc_core_top.v, 155
   Implicit wire 'shamt' does not have any driver, please make sure this is 
   intended.
 
 
 Warning-[PCWM-W] Port connection width mismatch
-/mnt/e/Desktop/mxrvcpu/run/../hdl/core/soc_core_top.v, 144
+/mnt/e/Desktop/mxrvcpu/run/../hdl/core/soc_core_top.v, 146
 "ex u_ex( .clk (clk),  .rst_n (rst_n),  .opcode_i (opcode_dff_aft),  .rd_i (rd_dff_aft),  .funct3_i (funct3_dff_aft),  .rs1_i (rs1_dff_aft),  .rs2_i (rs2_dff_aft),  .funct7_i (funct7_dff_aft),  .shamt_i (shamt),  .r_toggle_flag (r_toggle_flag_r),  .zimm_i (zimm_dff_aft),  .imm_i (imm_dff_aft),  .rs1_reg_data_i (rs1_reg_data_dff_aft),  .rs2_reg_data_i (rs2_reg_data_dff_aft),  .rd_wr_en_o (rd_req_wr_valid),  .rd_o (rd_addr),  .rd_reg_data_o (rd_data),  .Hold_flag_i (Hold_flag),  .div_busy_i (div_busy));"
   The following 1-bit expression is connected to 5-bit port "shamt_i" of 
   module "ex", instance "u_ex".
@@ -231,7 +250,7 @@ Warning-[PCWM-W] Port connection width mismatch
 
 
 Warning-[PCWM-W] Port connection width mismatch
-/mnt/e/Desktop/mxrvcpu/run/../hdl/core/soc_core_top.v, 144
+/mnt/e/Desktop/mxrvcpu/run/../hdl/core/soc_core_top.v, 146
 "ex u_ex( .clk (clk),  .rst_n (rst_n),  .opcode_i (opcode_dff_aft),  .rd_i (rd_dff_aft),  .funct3_i (funct3_dff_aft),  .rs1_i (rs1_dff_aft),  .rs2_i (rs2_dff_aft),  .funct7_i (funct7_dff_aft),  .shamt_i (shamt),  .r_toggle_flag (r_toggle_flag_r),  .zimm_i (zimm_dff_aft),  .imm_i (imm_dff_aft),  .rs1_reg_data_i (rs1_reg_data_dff_aft),  .rs2_reg_data_i (rs2_reg_data_dff_aft),  .rd_wr_en_o (rd_req_wr_valid),  .rd_o (rd_addr),  .rd_reg_data_o (rd_data),  .Hold_flag_i (Hold_flag),  .div_busy_i (div_busy));"
   The following 32-bit expression is connected to 1-bit port "rd_o" of module 
   "ex", instance "u_ex".
@@ -240,7 +259,7 @@ Warning-[PCWM-W] Port connection width mismatch
 
 
 Warning-[PCWM-W] Port connection width mismatch
-/mnt/e/Desktop/mxrvcpu/run/../hdl/core/soc_core_top.v, 166
+/mnt/e/Desktop/mxrvcpu/run/../hdl/core/soc_core_top.v, 168
 "regu u_regu( .clk (clk),  .rst_n (rst_n),  .rs1_i (rs1_dff_bef),  .rs2_i (rs2_dff_bef),  .rs1_req_rd_valid_i (rs1_req_rd_valid),  .rs2_req_rd_valid_i (rs2_req_rd_valid),  .rs1_reg_data_o (rs1_reg_data_dff_bef),  .rs2_reg_data_o (rs2_reg_data_dff_bef),  .rd_i (rd_addr),  .rd_data_i (rd_data),  .rd_req_wr_valid_i (rd_req_wr_valid));"
   The following 5-bit expression is connected to 32-bit port "rs1_i" of module
   "regu", instance "u_regu".
@@ -249,7 +268,7 @@ Warning-[PCWM-W] Port connection width mismatch
 
 
 Warning-[PCWM-W] Port connection width mismatch
-/mnt/e/Desktop/mxrvcpu/run/../hdl/core/soc_core_top.v, 166
+/mnt/e/Desktop/mxrvcpu/run/../hdl/core/soc_core_top.v, 168
 "regu u_regu( .clk (clk),  .rst_n (rst_n),  .rs1_i (rs1_dff_bef),  .rs2_i (rs2_dff_bef),  .rs1_req_rd_valid_i (rs1_req_rd_valid),  .rs2_req_rd_valid_i (rs2_req_rd_valid),  .rs1_reg_data_o (rs1_reg_data_dff_bef),  .rs2_reg_data_o (rs2_reg_data_dff_bef),  .rd_i (rd_addr),  .rd_data_i (rd_data),  .rd_req_wr_valid_i (rd_req_wr_valid));"
   The following 5-bit expression is connected to 32-bit port "rs2_i" of module
   "regu", instance "u_regu".
@@ -258,26 +277,28 @@ Warning-[PCWM-W] Port connection width mismatch
 
 Starting vcs inline pass...
 1 module and 0 UDP read.
-recompiling module rv_core_test_tb
+	However, due to incremental compilation, no re-compilation is necessary.
 make[1]: Entering directory '/mnt/e/Desktop/mxrvcpu/run/csrc'
 rm -f _csrc*.so pre_vcsobj_*.so share_vcsobj_*.so
+ld -shared  -Bsymbolic  -o .//../simv.daidir//_csrc0.so objs/amcQw_d.o 
+rm -f _csrc0.so
 if [ -x ../simv ]; then chmod -x ../simv; fi
 g++  -o ../simv -Wl,--no-as-needed    -Wl,-rpath-link=./ -Wl,-rpath='$ORIGIN'/simv.daidir/ \
 -Wl,-rpath=./simv.daidir/ -Wl,-rpath='$ORIGIN'/simv.daidir//scsim.db.dir  -L/usr/lib/x86_64-linux-gnu \
 -L/lib/x86_64-linux-gnu -Wl,--no-as-needed -rdynamic  -Wl,-rpath=/home/miaoxiang/synopsys/vcs/O-2018.09-SP2/linux64/lib \
--L/home/miaoxiang/synopsys/vcs/O-2018.09-SP2/linux64/lib   objs/amcQw_d.o  _207629_archive_1.so \
-SIM_l.o       rmapats_mop.o rmapats.o rmar.o rmar_nd.o  rmar_llvm_0_1.o rmar_llvm_0_0.o \
--lzerosoft_rt_stubs -lvirsim -lerrorinf -lsnpsmalloc -lvfs    -lvcsnew -lsimprofile \
--luclinative /home/miaoxiang/synopsys/vcs/O-2018.09-SP2/linux64/lib/vcs_tls.o   -Wl,-whole-archive \
--lvcsucli -Wl,-no-whole-archive       _vcs_pli_stub_.o   /home/miaoxiang/synopsys/vcs/O-2018.09-SP2/linux64/lib/vcs_save_restore_new.o \
+-L/home/miaoxiang/synopsys/vcs/O-2018.09-SP2/linux64/lib    _37754_archive_1.so _prev_archive_1.so \
+_csrc0.so  SIM_l.o  _csrc0.so     rmapats_mop.o rmapats.o rmar.o rmar_nd.o  rmar_llvm_0_1.o \
+rmar_llvm_0_0.o          -lzerosoft_rt_stubs -lvirsim -lerrorinf -lsnpsmalloc -lvfs \
+-lvcsnew -lsimprofile -luclinative /home/miaoxiang/synopsys/vcs/O-2018.09-SP2/linux64/lib/vcs_tls.o \
+-Wl,-whole-archive -lvcsucli -Wl,-no-whole-archive       _vcs_pli_stub_.o   /home/miaoxiang/synopsys/vcs/O-2018.09-SP2/linux64/lib/vcs_save_restore_new.o \
 /home/miaoxiang/synopsys/verdi/Verdi_O-2018.09-SP2/share/PLI/VCS/LINUX64/pli.a -ldl \
 -lc -lm -lpthread -ldl 
 ../simv up to date
 make[1]: Leaving directory '/mnt/e/Desktop/mxrvcpu/run/csrc'
-Command: /mnt/e/Desktop/mxrvcpu/run/./simv +define+UVM_REG_GET_BASE_RESPONSE_WITHOUT_REQ_ID +vc +v2k +seed=20240919001243 -a /mnt/e/Desktop/mxrvcpu/run/../sim/mcdf_full_random_test.log
+Command: /mnt/e/Desktop/mxrvcpu/run/./simv +define+UVM_REG_GET_BASE_RESPONSE_WITHOUT_REQ_ID +vc +v2k +seed=20241018000042 -a /mnt/e/Desktop/mxrvcpu/run/../sim/mcdf_full_random_test.log
 Chronologic VCS simulator copyright 1991-2018
 Contains Synopsys proprietary information.
-Compiler version O-2018.09-SP2_Full64; Runtime version O-2018.09-SP2_Full64;  Sep 19 00:12 2024
+Compiler version O-2018.09-SP2_Full64; Runtime version O-2018.09-SP2_Full64;  Oct 18 00:00 2024
 
 Warning-[STASKW_RMIEAFL] Illegal entry
 /mnt/e/Desktop/mxrvcpu/run/../hvl/core/rv_core_test_tb.sv, 162
@@ -289,5 +310,5 @@ $finish called from file "/mnt/e/Desktop/mxrvcpu/run/../hvl/core/rv_core_test_tb
 $finish at simulation time             10000000
            V C S   S i m u l a t i o n   R e p o r t 
 Time: 10000000 ps
-CPU Time:      0.240 seconds;       Data structure size:   0.0Mb
-Thu Sep 19 00:12:48 2024
+CPU Time:      0.190 seconds;       Data structure size:   0.0Mb
+Fri Oct 18 00:00:48 2024

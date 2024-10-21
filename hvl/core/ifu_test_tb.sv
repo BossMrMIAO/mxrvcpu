@@ -3,6 +3,8 @@
 //*****************************************
 `timescale 1ns/1ps
 
+`include "../../hdl/core/define.v"
+
 module ifu_test_tb ();
 
     reg clk;

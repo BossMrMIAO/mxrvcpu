@@ -9,9 +9,9 @@ TEST_CASE ?= mcdf_data_consistence_basic_test
 #----------------------------------------
 #	OPT
 #----------------------------------------
-FILELIST_OPT ?= -f ../filelist/hdl.lst
-FILELIST_OPT += -f ../filelist/hvl.lst
-INC_OPT ?= -f ../filelist/inc.lst
+FILELIST_OPT ?= -f ../filelist/hdl.f
+FILELIST_OPT += -f ../filelist/hvl.f
+INC_OPT ?= -f ../filelist/inc.f
 TIMESCALE_OPT ?= -timescale=1ns/1ps
 RUN_AFTER_COMP ?= 1
 # UVM_OPT ?= -ntb_opts uvm-1.2 +UVM_VERBOSITY=UVM_HIGH +UVM_TESTNAME=$(TEST_CASE)
