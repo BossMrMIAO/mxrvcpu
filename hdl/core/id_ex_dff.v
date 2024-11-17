@@ -12,61 +12,86 @@ module id_ex_dff #(
     input clk,
     input rst_n,
 
+    // pc_pass
+    input[`PORT_ADDR_WIDTH]         id_ex_dff_pc_i,
+    output[`PORT_ADDR_WIDTH]        id_ex_dff_pc_o,
+
+
     // data after inst decode
-    input[`PORT_OPCODE_WIDTH]    opcode_dff_i,
-    input[`PORT_REG_ADDR_WIDTH]  rd_dff_i, rs1_dff_i, rs2_dff_i,
-    input[`PORT_funct3_WIDTH]    funct3_dff_i,
-    input[`PORT_funct7_WIDTH]    funct7_dff_i,
-    // input[`WORD_WIDTH] shammt_dff_i,
-    input[`PORT_WORD_WIDTH]  zimm_dff_i,
-    input[`PORT_WORD_WIDTH] imm_dff_i,
+    input[`PORT_OPCODE_WIDTH]       id_ex_dff_opcode_i,
+    input[`PORT_REG_ADDR_WIDTH]     id_ex_dff_rd_i, id_ex_dff_rs1_i, id_ex_dff_rs2_i,
+    input[`PORT_funct3_WIDTH]       id_ex_dff_funct3_i,
+    input[`PORT_funct7_WIDTH]       id_ex_dff_funct7_i,
+    input[`PORT_REG_ADDR_WIDTH]     id_ex_dff_shamt_i,
+    input[`PORT_WORD_WIDTH]         id_ex_dff_zimm_i,
+    input[`PORT_WORD_WIDTH]         id_ex_dff_imm_i,
     
     // data after inst decode
-    output[`PORT_OPCODE_WIDTH]   opcode_dff_o,
-    output[`PORT_REG_ADDR_WIDTH] rd_dff_o, rs1_dff_o, rs2_dff_o,
-    output[`PORT_funct3_WIDTH]   funct3_dff_o,
-    output[`PORT_funct7_WIDTH]  funct7_dff_o,
-    // output[`WORD_WIDTH] shammt_dff_o,
-    output[`PORT_WORD_WIDTH] zimm_dff_o,
-    output[`PORT_WORD_WIDTH] imm_dff_o,
+    output[`PORT_OPCODE_WIDTH]      id_ex_dff_opcode_o,
+    output[`PORT_REG_ADDR_WIDTH]    id_ex_dff_rd_o, id_ex_dff_rs1_o, id_ex_dff_rs2_o,
+    output[`PORT_funct3_WIDTH]      id_ex_dff_funct3_o,
+    output[`PORT_funct7_WIDTH]      id_ex_dff_funct7_o,
+    output[`PORT_REG_ADDR_WIDTH]    id_ex_dff_shamt_o,
+    output[`PORT_WORD_WIDTH]        id_ex_dff_zimm_o,
+    output[`PORT_WORD_WIDTH]        id_ex_dff_imm_o,
 
     // reg data source storage
-    input[`RegBusPort]  rs1_reg_data_dff_i, rs2_reg_data_dff_i,
-    output[`RegBusPort]  rs1_reg_data_dff_o, rs2_reg_data_dff_o
+    input[`RegBusPort]              id_ex_dff_rs1_reg_data_i, id_ex_dff_rs2_reg_data_i,
+    output[`RegBusPort]             id_ex_dff_rs1_reg_data_o, id_ex_dff_rs2_reg_data_o,
+
+    // 来自ctrl冲刷信号
+    input                           id_ex_dff_pipeline_flush_flag
 
 
 );
 
     s_bits_dff #(.bits_width(`OPCODE_WIDTH)) u_s_bits_dff_1_0 
-    (.clk(clk),.rst_n(rst_n),.d(opcode_dff_i),.q(opcode_dff_o));
+    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),
+    .zero_point({`OPCODE_WIDTH{1'b0}}),.d(id_ex_dff_opcode_i),.q(id_ex_dff_opcode_o));
 
     s_bits_dff #(.bits_width(`REG_ADDR_WIDTH)) u_s_bits_dff_1_1 
-    (.clk(clk),.rst_n(rst_n),.d(rd_dff_i),.q(rd_dff_o));
+    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),
+    .zero_point({`REG_ADDR_WIDTH{1'b0}}),.d(id_ex_dff_rd_i),.q(id_ex_dff_rd_o));
 
     s_bits_dff #(.bits_width(`REG_ADDR_WIDTH)) u_s_bits_dff_1_2
-    (.clk(clk),.rst_n(rst_n),.d(rs1_dff_i),.q(rs1_dff_o));
+    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),
+    .zero_point({`REG_ADDR_WIDTH{1'b0}}),.d(id_ex_dff_rs1_i),.q(id_ex_dff_rs1_o));
 
     s_bits_dff #(.bits_width(`REG_ADDR_WIDTH))u_s_bits_dff_1_3
-    (.clk(clk),.rst_n(rst_n),.d(rs2_dff_i),.q(rs2_dff_o));
+    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),
+    .zero_point({`REG_ADDR_WIDTH{1'b0}}),.d(id_ex_dff_rs2_i),.q(id_ex_dff_rs2_o));
     
     s_bits_dff #(.bits_width(`funct3_WIDTH)) u_s_bits_dff_1_4
-    (.clk(clk),.rst_n(rst_n),.d(funct3_dff_i),.q(funct3_dff_o));
+    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),
+    .zero_point({`funct3_WIDTH{1'b0}}),.d(id_ex_dff_funct3_i),.q(id_ex_dff_funct3_o));
 
     s_bits_dff #(.bits_width(`funct7_WIDTH)) u_s_bits_dff_1_5
-    (.clk(clk),.rst_n(rst_n),.d(funct7_dff_i),.q(funct7_dff_o));
+    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),
+    .zero_point({`funct7_WIDTH{1'b0}}),.d(id_ex_dff_funct7_i),.q(id_ex_dff_funct7_o));
 
-    s_bits_dff #(.bits_width(`REG_ADDR_WIDTH)) u_s_bits_dff_1_6
-    (.clk(clk),.rst_n(rst_n),.d(zimm_dff_i),.q(zimm_dff_o));
+    s_bits_dff #(.bits_width(`REG_ADDR_WIDTH)) u_s_bits_dff_1_6 
+    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),
+    .zero_point({`REG_ADDR_WIDTH{1'b0}}),.d(id_ex_dff_shamt_i),.q(id_ex_dff_shamt_o));
 
-    s_bits_dff #(.bits_width(`WORD_WIDTH)) u_s_bits_dff_1_7
-    (.clk(clk),.rst_n(rst_n),.d(imm_dff_i),.q(imm_dff_o));
+    s_bits_dff #(.bits_width(`REG_ADDR_WIDTH)) u_s_bits_dff_1_7
+    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),
+    .zero_point({`REG_ADDR_WIDTH{1'b0}}),.d(id_ex_dff_zimm_i),.q(id_ex_dff_zimm_o));
 
+    s_bits_dff #(.bits_width(`WORD_WIDTH)) u_s_bits_dff_1_8
+    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),
+    .zero_point({`WORD_WIDTH{1'b0}}),.d(id_ex_dff_imm_i),.q(id_ex_dff_imm_o));
 
-    s_bits_dff #(.bits_width(`RegBus)) u_s_bits_dff_1_8 
-    (.clk(clk),.rst_n(rst_n),.d(rs1_reg_data_dff_i),.q(rs1_reg_data_dff_o));
+    s_bits_dff #(.bits_width(`RegBus)) u_s_bits_dff_1_9
+    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),
+    .zero_point({`RegBus{1'b0}}),.d(id_ex_dff_rs1_reg_data_i),.q(id_ex_dff_rs1_reg_data_o));
 
-    s_bits_dff #(.bits_width(`RegBus)) u_s_bits_dff_1_9 
-    (.clk(clk),.rst_n(rst_n),.d(rs2_reg_data_dff_i),.q(rs2_reg_data_dff_o));
+    s_bits_dff #(.bits_width(`RegBus)) u_s_bits_dff_1_10
+    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),
+    .zero_point({`RegBus{1'b0}}),.d(id_ex_dff_rs2_reg_data_i),.q(id_ex_dff_rs2_reg_data_o));
+
+    s_bits_dff #(.bits_width(`RegBus)) u_s_bits_dff_1_11
+    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),
+    .zero_point({`RegBus{1'b0}}),.d(id_ex_dff_pc_i),.q(id_ex_dff_pc_o));
 
 
 endmodule

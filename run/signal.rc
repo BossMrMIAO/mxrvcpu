@@ -2,11 +2,11 @@ Magic 271485
 Revision Verdi_O-2018.09-SP2
 
 ; Window Layout <x> <y> <width> <height> <signalwidth> <valuewidth>
-viewPort 1248 -32 1428 819 207 117
+viewPort 273 270 1428 423 207 117
 
 ; File list:
 ; openDirFile [-d delimiter] [-s time_offset] [-rf auto_bus_rule_file] path_name file_name
-openDirFile -d / -i 0 "" "/mnt/e/Desktop/mxrvcpu/run/tb.fsdb" "/mnt/e/Desktop/mxrvcpu/run/tb.fsdb.fsdb"
+openDirFile -d / "" "/mnt/e/Desktop/mxrvcpu/run/tb.fsdb" "/mnt/e/Desktop/mxrvcpu/run/tb.fsdb.fsdb"
 
 ; file time scale:
 ; fileTimeScale ### s|ms|us|ns|ps
@@ -16,14 +16,16 @@ signalSpacing 5
 
 ; windowTimeUnit is used for zoom, cursor & marker
 ; waveform viewport range
-zoom 0.000000 300978.741553
-cursor 110000.000000
+zoom 0.000000 581750.429786
+cursor 0.000000
 marker 0.000000
 
+; user define markers
+; userMarker time_pos marker_name color linestyle
 ; visible top row signal index
-top 0
+top 10
 ; marker line index
-markerPos 54
+markerPos 21
 
 ; event list
 ; addEvent event_name event_expression
@@ -48,59 +50,25 @@ activeDirFile "" "/mnt/e/Desktop/mxrvcpu/run/tb.fsdb.fsdb"
 addSignal -h 15 /rv_core_test_tb/u_soc_core_top/clk
 addSignal -h 15 -holdScope rst_n
 addGroup "PC_REG"
-addSignal -h 15 /rv_core_test_tb/u_soc_core_top/u_pc_reg/hold_flag_i
-addSignal -h 15 -holdScope jump_flag_i
-addSignal -h 15 -holdScope jump_addr_i[31:0]
-addSignal -h 15 -holdScope pc_o[31:0]
+addSignal -h 15 /rv_core_test_tb/u_soc_core_top/u_pc_reg/pc_o[31:0]
 addGroup "ROM"
-addSignal -h 15 /rv_core_test_tb/u_soc_core_top/u_rom/pc_i[31:0]
-addSignal -h 15 -holdScope pc_send_valid_i
-addSignal -h 15 -holdScope pc_receive_ready_o
-addSignal -h 15 -holdScope inst_data_o[31:0]
-addSignal -h 15 -holdScope inst_valid_o
+addSignal -h 15 /rv_core_test_tb/u_soc_core_top/u_rom/inst_data_o[31:0]
 addGroup "IF"
-addSignal -h 15 /rv_core_test_tb/u_soc_core_top/u_ifu/inst_valid_i
-addSignal -h 15 -holdScope inst_data_i[31:0]
-addSignal -h 15 -holdScope pc_send_valid_o
-addSignal -h 15 -holdScope pc_ifu_o[31:0]
-addSignal -h 15 -holdScope pc_receive_ready_i
-addSignal -h 15 -holdScope inst_ifu_valid_o
+addSignal -h 15 /rv_core_test_tb/u_soc_core_top/u_ifu/pc_ifu_o[31:0]
 addSignal -h 15 -holdScope inst_data_ifu_o[31:0]
 addGroup "ID"
 addSignal -h 15 /rv_core_test_tb/u_soc_core_top/u_id/inst_data_i[31:0]
 addSignal -h 15 -holdScope opcode[6:0]
-addSignal -h 15 -holdScope rd[4:0]
-addSignal -h 15 -holdScope funct3[2:0]
-addSignal -h 15 -holdScope rs1[4:0]
-addSignal -h 15 -holdScope rs2[4:0]
-addSignal -h 15 -holdScope funct7[6:0]
-addSignal -h 15 -holdScope shamt[4:0]
-addSignal -h 15 -holdScope rs1_req_rd_valid_o
-addSignal -h 15 -holdScope rs2_req_rd_valid_o
-addSignal -h 15 -holdScope id_err_o
 addGroup "EX"
-addSignal -h 15 /rv_core_test_tb/u_soc_core_top/u_ex/rd_i[4:0]
-addSignal -h 15 -holdScope funct3_i[2:0]
-addSignal -h 15 -holdScope rs1_i[4:0]
-addSignal -h 15 -holdScope rs2_i[4:0]
-addSignal -h 15 -holdScope funct7_i[6:0]
-addSignal -h 15 -holdScope shamt_i[4:0]
-addSignal -h 15 -holdScope rs1_reg_data_i[31:0]
-addSignal -h 15 -holdScope rs2_reg_data_i[31:0]
-addSignal -h 15 -holdScope rd_wr_en_o
-addSignal -h 15 -holdScope rd_reg_data_o[31:0]
-addSignal -h 15 -holdScope Hold_flag_i
-addSignal -h 15 -holdScope div_busy_i
+addSignal -h 15 /rv_core_test_tb/u_soc_core_top/opcode_dff_aft[6:0]
+addSignal -h 15 /rv_core_test_tb/u_soc_core_top/u_ex/rd_o
+addSignal -h 15 /rv_core_test_tb/u_soc_core_top/rd_data[31:0]
+addSignal -h 15 -holdScope pc_id_ex_dff_aft[31:0]
+addSignal -h 15 -holdScope pc_ifu_id_dff_aft[31:0]
+addSignal -h 15 -holdScope pc_ifu_id_dff_bef[31:0]
+addSignal -h 15 -holdScope pc_ifu[31:0]
+addSignal -h 15 -holdScope pc_id_ex_dff_bef[31:0]
 addGroup "REG"
-addSignal -h 15 /rv_core_test_tb/u_soc_core_top/u_regu/rs1_i[31:0]
-addSignal -h 15 -holdScope rs2_i[31:0]
-addSignal -h 15 -holdScope rs1_req_rd_valid_i
-addSignal -h 15 -holdScope rs2_req_rd_valid_i
-addSignal -h 15 -holdScope rs1_reg_data_o[31:0]
-addSignal -h 15 -holdScope rs2_reg_data_o[31:0]
-addSignal -h 15 -holdScope rd_i[31:0]
-addSignal -h 15 -holdScope rd_data_i[31:0]
-addSignal -h 15 -holdScope rd_req_wr_valid_i
 addGroup "G8"
 
 ; getSignalForm Scope Hierarchy Status

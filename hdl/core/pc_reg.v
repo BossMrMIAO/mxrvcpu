@@ -10,40 +10,41 @@
 `include "define.v"
 
 module pc_reg (
-    input   clk,
-    input   rst_n,
+    input                               clk,
+    input                               rst_n,
     // hold信号有效时，PC指针保持
-    input   hold_flag_i,
+    input                               pc_reg_hold_flag_i,
     // jump跳转信号有效，该状态会装载由jump_addr_i
-    input   jump_flag_i,
-    input [`PORT_ADDR_WIDTH]  jump_addr_i,
-
+    input                               pc_reg_jump_flag_i,
+    input [`PORT_ADDR_WIDTH]            pc_reg_jump_addr_i,
     // 输出wire类型PC值
-    output [`PORT_ADDR_WIDTH]    pc_o
+    output[`PORT_ADDR_WIDTH]            pc_reg_pc_o
 );
 
-    reg [`PORT_ADDR_WIDTH]   pc_reg;
+    reg [`PORT_ADDR_WIDTH]              pc_reg_r;
 
-    assign pc_o = pc_reg;
+    assign pc_reg_pc_o = pc_reg_r;
 
-    always @(posedge clk or negedge rst_n) begin
-        // reset logic
+    always @(posedge clk) begin
+        // 复位
         if(!rst_n) begin
-            pc_reg <= 0;
+            pc_reg_r <= 0;
         end
-        // hold logic
-        else if(hold_flag_i) begin
-            pc_reg <= pc_reg;
+        // hold状态
+        else if(pc_reg_hold_flag_i) begin
+            pc_reg_r <= pc_reg_r;
         end
-        // jump logic
-        else if(jump_flag_i) begin
-            pc_reg <= jump_addr_i;
+        // 跳转状态
+        else if(pc_reg_jump_flag_i) begin
+            pc_reg_r <= pc_reg_jump_addr_i;
         end
-        // case1 logic
+        // 常规地址自加
         else begin
-            pc_reg <= pc_reg + `BYTES_IN_A_WORD;
+            pc_reg_r <= pc_reg_r + `BYTES_IN_A_WORD;
         end
     end
     
 endmodule
+
+
 

@@ -11,7 +11,7 @@ $RUN_DIR/../hdl/core/if_id_dff.v
 $RUN_DIR/../hdl/core/id.v
 $RUN_DIR/../hdl/core/id_ex_dff.v
 $RUN_DIR/../hdl/core/ex.v
-$RUN_DIR/../hdl/core/rom.v
+$RUN_DIR/../hdl/core/inst_rom.v
 $RUN_DIR/../hdl/core/soc_core_top.v
 
 

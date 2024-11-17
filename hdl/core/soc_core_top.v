@@ -11,173 +11,230 @@ PC_REG,
 
 
 module soc_core_top (
+    // 全局时钟与异步复位
     input   clk,
     input   rst_n
 );
 
-// connection wires between different component
-    reg[`RegBusPort] pc;
+    // 内核各组件之间连接线
 
-    wire inst_valid;
-    wire[`RegBusPort] inst_data;
-    wire pc_send_valid;
-    wire pc_receive_ready;
+    // pc_reg --- ifu
+    wire[`PORT_ADDR_WIDTH]      pc_reg_ifu_pc;
+    // pc_reg --- inst_rom
+    wire[`PORT_ADDR_WIDTH]      pc_reg_inst_rom_pc;
+    assign pc_reg_inst_rom_pc = pc_reg_ifu_pc;
 
-    wire[`PORT_ADDR_WIDTH] pc_ifu;
-    wire inst_ifu_valid;
-    wire[`PORT_DATA_WIDTH] inst_data_ifu_dff_bef, inst_data_ifu_dff_aft;
+    // inst_rom --- ifu
+    wire[`PORT_DATA_WIDTH]      inst_rom_ifu_inst_data;
+
+    // ifu --- if_id_dff
+    wire[`PORT_ADDR_WIDTH]      ifu_if_id_dff_pc_bef;
+    wire[`PORT_DATA_WIDTH]      ifu_if_id_dff_inst_data_bef;
+
+    // if_id_dff --- id
+    wire[`PORT_ADDR_WIDTH]      if_id_dff_id_pc_aft;
+    wire[`PORT_DATA_WIDTH]      if_id_dff_id_inst_data_aft;
+
+    // id --- id_ex_dff
+    wire[`PORT_OPCODE_WIDTH]    id_id_ex_dff_opcode_bef;
+    wire[`PORT_REG_ADDR_WIDTH]  id_id_ex_dff_rd_addr_bef;
+    wire[`PORT_funct3_WIDTH]    id_id_ex_dff_funct3_bef;
+    wire[`PORT_REG_ADDR_WIDTH]  id_id_ex_dff_rs1_addr_bef;
+    wire[`PORT_REG_ADDR_WIDTH]  id_id_ex_dff_rs2_addr_bef;
+    wire[`PORT_funct7_WIDTH]    id_id_ex_dff_funct7_bef;
+    wire[`PORT_REG_ADDR_WIDTH]  id_id_ex_dff_shamt_bef;
+    wire[`PORT_WORD_WIDTH]      id_id_ex_dff_zimm_bef;
+    wire[`PORT_WORD_WIDTH]      id_id_ex_dff_imm_bef;
+    wire[`PORT_WORD_WIDTH]      id_id_ex_dff_csr_addr_bef;
+    wire[`PORT_ADDR_WIDTH]      id_id_ex_dff_pc_bef;
+
+    // id --- regu
+    wire[`PORT_REG_ADDR_WIDTH]  id_regu_rs1_addr;
+    wire[`PORT_REG_ADDR_WIDTH]  id_regu_rs2_addr;
+    assign id_regu_rs1_addr = id_id_ex_dff_rs1_addr_bef;
+    assign id_regu_rs2_addr = id_id_ex_dff_rs2_addr_bef;
+
+    // regu --- id_ex_dff
+    wire[`RegBusPort]           regu_id_ex_dff_rs1_reg_data_bef;
+    wire[`RegBusPort]           regu_id_ex_dff_rs2_reg_data_bef;
+
+    // id_ex_dff --- ex
+    wire[`PORT_OPCODE_WIDTH]    id_ex_dff_ex_opcode_aft;
+    wire[`PORT_REG_ADDR_WIDTH]  id_ex_dff_ex_rd_addr_aft;
+    wire[`PORT_funct3_WIDTH]    id_ex_dff_ex_funct3_aft;
+    wire[`PORT_REG_ADDR_WIDTH]  id_ex_dff_ex_rs1_addr_aft;
+    wire[`PORT_REG_ADDR_WIDTH]  id_ex_dff_ex_rs2_addr_aft;
+    wire[`PORT_funct7_WIDTH]    id_ex_dff_ex_funct7_aft;
+    wire[`PORT_REG_ADDR_WIDTH]  id_ex_dff_ex_shamt_aft;
+    wire[`PORT_WORD_WIDTH]      id_ex_dff_ex_zimm_aft;
+    wire[`PORT_WORD_WIDTH]      id_ex_dff_ex_imm_aft;
+    wire[`PORT_WORD_WIDTH]      id_ex_dff_ex_csr_addr_aft;
+    wire[`PORT_ADDR_WIDTH]      id_ex_dff_ex_pc_aft;
+    wire[`RegBusPort]           id_ex_dff_ex_rs1_reg_data_aft;
+    wire[`RegBusPort]           id_ex_dff_ex_rs2_reg_data_aft;
+
+    // ex --- regu
+    wire                        ex_regu_rd_wr_en;
+    wire[`PORT_REG_ADDR_WIDTH]  ex_regu_rd_addr;
+    wire[`RegBusPort]           ex_regu_rd_reg_data;
+
+    // ex --- ctrl            
+    wire                        ex_ctrl_pc_jump_flag;
+    wire[`PORT_ADDR_WIDTH]      ex_ctrl_pc_jump;
+    wire                        ex_ctrl_pc_hold_flag;
+
+    // ctrl --- pc_reg
+    wire                        ctrl_pc_reg_pipeline_flush_flag;
+    wire[`PORT_ADDR_WIDTH]      ctrl_pc_reg_pc_jump;
+    wire                        ctrl_pc_reg_pipeline_hold_flag;
+
+    // ctrl --- if_id_dff
+    wire                        ctrl_if_id_dff_pipeline_flush_flag;
+    assign ctrl_if_id_dff_pipeline_flush_flag = ctrl_pc_reg_pipeline_flush_flag;
+
+    // ctrl --- id_ex_dff
+    wire                        ctrl_id_ex_dff_pipeline_flush_flag;
+    assign ctrl_id_ex_dff_pipeline_flush_flag = ctrl_pc_reg_pipeline_flush_flag;
+
+
+
+// 实例化SOC内核
+    pc_reg  pc_reg_inst (
+        .clk(clk),
+        .rst_n(rst_n),
+        .pc_reg_hold_flag_i(ctrl_pc_reg_pipeline_hold_flag),
+        .pc_reg_jump_flag_i(ctrl_pc_reg_pipeline_flush_flag),
+        .pc_reg_jump_addr_i(ctrl_pc_reg_pc_jump),
+        .pc_reg_pc_o(pc_reg_ifu_pc)
+      );
+
+    inst_rom  inst_rom_inst (
+        .clk(clk),
+        .rst_n(rst_n),
+        .inst_rom_pc_i(pc_reg_inst_rom_pc),
+        .inst_rom_inst_data_o(inst_rom_ifu_inst_data)
+      );
+
+    ifu  ifu_inst (
+        .clk(clk),
+        .rst_n(rst_n),
+        .ifu_pc_i(pc_reg_ifu_pc),
+        .ifu_pc_o(ifu_if_id_dff_pc_bef),
+        .ifu_inst_data_i(inst_rom_ifu_inst_data),
+        .ifu_inst_data_o(ifu_if_id_dff_inst_data_bef)
+      );
+
+    if_id_dff  if_id_dff_inst (
+        .clk(clk),
+        .rst_n(rst_n),
+        .ifu_id_dff_pc_i(ifu_if_id_dff_pc_bef),
+        .ifu_id_dff_pc_o(if_id_dff_id_pc_aft),
+        .ifu_id_dff_inst_data_i(ifu_if_id_dff_inst_data_bef),
+        .ifu_id_dff_inst_data_o(if_id_dff_id_inst_data_aft),
+        .if_id_dff_pipeline_flush_flag(ctrl_if_id_dff_pipeline_flush_flag)
+      );
     
-
-
-    wire[`PORT_OPCODE_WIDTH] opcode_dff_bef, opcode_dff_aft;
-    wire[`PORT_REG_ADDR_WIDTH] rd_dff_bef, rd_dff_aft;
-    wire[`PORT_funct3_WIDTH] funct3_dff_bef, funct3_dff_aft;
-    wire[`PORT_REG_ADDR_WIDTH]   rs1_dff_bef, rs1_dff_aft, rs2_dff_bef, rs2_dff_aft;
-    wire[`PORT_funct7_WIDTH] funct7_dff_bef, funct7_dff_aft;
-    wire[`PORT_REG_ADDR_WIDTH] shamt_dff_bef, shamt_dff_aft;
-    wire[`PORT_R_TOGGLE_FLAG]    r_toggle_flag_r;
-    wire[`PORT_WORD_WIDTH] zimm_dff_bef, zimm_dff_aft;
-    wire[`PORT_WORD_WIDTH]  imm_dff_bef, imm_dff_aft;
-
-    wire[`RegBusPort] rs1_reg_data_dff_bef,rs1_reg_data_dff_aft, rs2_reg_data_dff_bef,rs2_reg_data_dff_aft;
-    wire[`RegBusPort] rd_wr_en,rd_reg_data;
-    wire Hold_flag,div_busy;
-
-     
-    wire rs1_req_rd_valid, rs2_req_rd_valid;
-    wire[`RegBusPort] rd_addr, rd_data;
-    wire rd_req_wr_valid;
-
-// initialize all component
-
-    // instance pc_reg
-    pc_reg u_pc_reg (
+    id  id_inst (
         .clk(clk),
         .rst_n(rst_n),
-        .pc_o(pc)
-    );
+        .id_pc_i(if_id_dff_id_pc_aft),
+        .id_pc_o(id_id_ex_dff_pc_bef),
+        .id_inst_data_i(if_id_dff_id_inst_data_aft),
+        .id_opcode_o(id_id_ex_dff_opcode_bef),
+        .id_rd_addr_o(id_id_ex_dff_rd_addr_bef),
+        .id_funct3_o(id_id_ex_dff_funct3_bef),
+        .id_rs1_addr_o(id_id_ex_dff_rs1_addr_bef),
+        .id_rs2_addr_o(id_id_ex_dff_rs2_addr_bef),
+        .id_funct7_o(id_id_ex_dff_funct7_bef),
+        .id_shamt_o(id_id_ex_dff_shamt_bef),
+        .id_zimm_o(id_id_ex_dff_zimm_bef),
+        .id_imm_o(id_id_ex_dff_imm_bef),
+        .id_csr_addr_o(id_id_ex_dff_csr_addr_bef),
+        .id_err_o()
+      );   
 
-    rom u_rom (
+    id_ex_dff  id_ex_dff_inst (
         .clk(clk),
         .rst_n(rst_n),
-        .pc_i(pc),
-        .pc_send_valid_i(pc_send_valid),
-        .pc_receive_ready_o(pc_receive_ready),
-        .inst_data_o(inst_data),
-        .inst_valid_o(inst_valid)
-    );
+        .id_ex_dff_pc_i(id_id_ex_dff_pc_bef),
+        .id_ex_dff_pc_o(id_ex_dff_ex_pc_aft),
+        .id_ex_dff_opcode_i(id_id_ex_dff_opcode_bef),
+        .id_ex_dff_rd_i(id_id_ex_dff_rd_addr_bef),
+        .id_ex_dff_rs1_i(id_id_ex_dff_rs1_addr_bef),
+        .id_ex_dff_rs2_i(id_id_ex_dff_rs2_addr_bef),
+        .id_ex_dff_funct3_i(id_id_ex_dff_funct3_bef),
+        .id_ex_dff_funct7_i(id_id_ex_dff_funct7_bef),
+        .id_ex_dff_shamt_i(id_id_ex_dff_shamt_bef),
+        .id_ex_dff_zimm_i(id_id_ex_dff_zimm_bef),
+        .id_ex_dff_imm_i(id_id_ex_dff_imm_bef),
+        .id_ex_dff_opcode_o(id_ex_dff_ex_opcode_aft),
+        .id_ex_dff_rd_o(id_ex_dff_ex_rd_addr_aft),
+        .id_ex_dff_rs1_o(id_ex_dff_ex_rs1_addr_aft),
+        .id_ex_dff_rs2_o(id_ex_dff_ex_rs2_addr_aft),
+        .id_ex_dff_funct3_o(id_ex_dff_ex_funct3_aft),
+        .id_ex_dff_funct7_o(id_ex_dff_ex_funct7_aft),
+        .id_ex_dff_shamt_o(id_ex_dff_ex_shamt_aft),
+        .id_ex_dff_zimm_o(id_ex_dff_ex_zimm_aft),
+        .id_ex_dff_imm_o(id_ex_dff_ex_imm_aft),
+        .id_ex_dff_rs1_reg_data_i(regu_id_ex_dff_rs1_reg_data_bef),
+        .id_ex_dff_rs2_reg_data_i(regu_id_ex_dff_rs2_reg_data_bef),
+        .id_ex_dff_rs1_reg_data_o(id_ex_dff_ex_rs1_reg_data_aft),
+        .id_ex_dff_rs2_reg_data_o(id_ex_dff_ex_rs2_reg_data_aft),
+        .id_ex_dff_pipeline_flush_flag(ctrl_id_ex_dff_pipeline_flush_flag)
+      );
 
-
-    ifu u_ifu (
+    regu  regu_inst (
         .clk(clk),
         .rst_n(rst_n),
-        .pc_i(pc),
-        .inst_valid_i(inst_valid),
-        .inst_data_i(inst_data),
-        .pc_send_valid_o(pc_send_valid),
-        .pc_receive_ready_i(pc_receive_ready),
-        .pc_ifu_o(pc_ifu),
-        .inst_ifu_valid_o(inst_ifu_valid),
-        .inst_data_ifu_o(inst_data_ifu_dff_bef)
-    );
+        .regu_rs1_addr_i(id_regu_rs1_addr),
+        .regu_rs2_addr_i(id_regu_rs2_addr),
+        .regu_rs1_reg_data_o(regu_id_ex_dff_rs1_reg_data_bef),
+        .regu_rs2_reg_data_o(regu_id_ex_dff_rs2_reg_data_bef),
+        .regu_rd_addr_i(ex_regu_rd_addr),
+        .regu_rd_data_i(ex_regu_rd_reg_data),
+        .regu_rd_wr_en_i(ex_regu_rd_wr_en)
+      );    
 
-    if_id_dff u_if_id_dff (
+    ex  ex_inst (
         .clk(clk),
         .rst_n(rst_n),
-        .inst_data_dff_i(inst_data_ifu_dff_bef),
-        .inst_data_dff_O(inst_data_ifu_dff_aft)
-    );
+        .ex_pc_i(id_ex_dff_ex_pc_aft),
+        .ex_pc_o(),
+        .ex_pc_jump_flag(ex_ctrl_pc_jump_flag),
+        .ex_pc_jump_o(ex_ctrl_pc_jump),
+        .ex_opcode_i(id_ex_dff_ex_opcode_aft),
+        .ex_rd_addr_i(id_ex_dff_ex_rd_addr_aft),
+        .ex_funct3_i(id_ex_dff_ex_funct3_aft),
+        .ex_rs1_addr_i(id_ex_dff_ex_rs1_addr_aft),
+        .ex_rs2_addr_i(id_ex_dff_ex_rs2_addr_aft),
+        .ex_funct7_i(id_ex_dff_ex_funct7_aft),
+        .ex_shamt_i(id_ex_dff_ex_shamt_aft),
+        .ex_zimm_i(id_ex_dff_ex_zimm_aft),
+        .ex_imm_i(id_ex_dff_ex_imm_aft),
+        .ex_rs1_reg_data_i(id_ex_dff_ex_rs1_reg_data_aft),
+        .ex_rs2_reg_data_i(id_ex_dff_ex_rs2_reg_data_aft),
+        .ex_rd_wr_en_o(ex_regu_rd_wr_en),
+        .ex_rd_addr_o(ex_regu_rd_addr),
+        .ex_rd_reg_data_o(ex_regu_rd_reg_data),
+        .ex_data_ram_wr_en_o(),
+        .ex_data_ram_wr_addr_o(),
+        .ex_data_ram_wr_data_o(),
+        .ex_hold_flag_o(),
+        .ex_div_busy_i()
+      );
 
-
-    // instance id
-    id u_id (
+    ctrl  ctrl_inst (
         .clk(clk),
         .rst_n(rst_n),
-        .inst_data_i(inst_data_ifu_dff_aft),
-        .opcode(opcode_dff_bef),
-        .rd(rd_dff_bef),
-        .funct3(funct3_dff_bef),
-        .rs1(rs1_dff_bef),
-        .rs2(rs2_dff_bef),
-        .funct7(funct7_dff_bef),
-        .shamt(shamt_dff_bef),
-        .r_toggle_flag(r_toggle_flag_r),
-        .zimm(zimm_dff_bef),
-        .imm(imm_dff_bef),
-        .rs1_req_rd_valid_o(rs1_req_rd_valid),
-        .rs2_req_rd_valid_o(rs2_req_rd_valid)
-    );
+        .ctrl_pc_jump_flag_i(ex_ctrl_pc_jump_flag),
+        .ctrl_pc_jump_i(ex_ctrl_pc_jump),
+        .ctrl_pc_hold_flag_i(ex_ctrl_pc_hold_flag),
+        .ctrl_pipeline_flush_flag_o(ctrl_pc_reg_pipeline_flush_flag),
+        .ctrl_pc_jump_o(ctrl_pc_reg_pc_jump),
+        .ctrl_pipeline_hold_flag_o(ctrl_pc_reg_pipeline_hold_flag)
+      );
 
 
-    id_ex_dff u_id_ex_dff (
-        .clk(clk),
-        .rst_n(rst_n),
-
-        // data after inst decode
-        .opcode_dff_i(opcode_dff_bef),
-        .rd_dff_i(rd_dff_bef), 
-        .rs1_dff_i(rs1_dff_bef), 
-        .rs2_dff_i(rs2_dff_bef),
-        .funct3_dff_i(funct3_dff_bef),
-        .funct7_dff_i(funct7_dff_bef),
-        // input[`REG_ADDR_WIDTH] shammt_dff_i,
-        .zimm_dff_i(zimm_dff_bef),
-        .imm_dff_i(imm_dff_bef),
-
-        .rs1_reg_data_dff_i(rs1_reg_data_dff_bef),
-        .rs1_reg_data_dff_o(rs1_reg_data_dff_aft),
-        
-        // data after inst decode
-        .opcode_dff_o(opcode_dff_aft),
-        .rd_dff_o(rd_dff_aft), 
-        .rs1_dff_o(rs1_dff_aft), 
-        .rs2_dff_o(rs2_dff_aft),
-        .funct3_dff_o(funct3_dff_aft),
-        .funct7_dff_o(funct7_dff_aft),
-        // output[`REG_ADDR_WIDTH] shammt_dff_o,
-        .zimm_dff_o(zimm_dff_aft),
-        .imm_dff_o(imm_dff_aft),
-
-        .rs2_reg_data_dff_i(rs2_reg_data_dff_bef),
-        .rs2_reg_data_dff_o(rs2_reg_data_dff_aft)
-    );
-
-    // instance ex
-    ex u_ex (
-        .clk(clk),
-        .rst_n(rst_n),
-        .opcode_i(opcode_dff_aft),
-        .rd_i(rd_dff_aft),
-        .funct3_i(funct3_dff_aft),
-        .rs1_i(rs1_dff_aft),
-        .rs2_i(rs2_dff_aft),
-        .funct7_i(funct7_dff_aft),
-        .shamt_i(shamt),
-        .r_toggle_flag(r_toggle_flag_r),
-        .zimm_i(zimm_dff_aft),
-        .imm_i(imm_dff_aft),
-        .rs1_reg_data_i(rs1_reg_data_dff_aft),
-        .rs2_reg_data_i(rs2_reg_data_dff_aft),
-        .rd_wr_en_o(rd_req_wr_valid),
-        .rd_o(rd_addr),
-        .rd_reg_data_o(rd_data),
-        .Hold_flag_i(Hold_flag),
-        .div_busy_i(div_busy)
-    );
-
-    regu u_regu (
-        .clk(clk),
-        .rst_n(rst_n),
-        .rs1_i(rs1_dff_bef),
-        .rs2_i(rs2_dff_bef),
-        .rs1_req_rd_valid_i(rs1_req_rd_valid),
-        .rs2_req_rd_valid_i(rs2_req_rd_valid),
-        .rs1_reg_data_o(rs1_reg_data_dff_bef),
-        .rs2_reg_data_o(rs2_reg_data_dff_bef),
-        .rd_i(rd_addr),
-        .rd_data_i(rd_data),
-        .rd_req_wr_valid_i(rd_req_wr_valid)
-    );
 
 
 endmodule

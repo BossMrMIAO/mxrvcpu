@@ -10,52 +10,20 @@
 `include "define.v"
 
 module ifu (
-    // global clock
-    input clk,
-    input rst_n,
-    // pc value = inst_addr，链接来自pc_reg
-    input[`PORT_ADDR_WIDTH] pc_i,
-    // inst data and send out pc，与指令存储器ROM的交互接口
-    input   inst_valid_i,
-    input[`PORT_DATA_WIDTH] inst_data_i,
-    output reg pc_send_valid_o,
-    output reg[`PORT_ADDR_WIDTH] pc_ifu_o,
-    input pc_receive_ready_i,
-
-
-    // 将pc值与指令一并送出，时序需要注意, 连接DFF1
-    output inst_ifu_valid_o,
-    output [`PORT_DATA_WIDTH]    inst_data_ifu_o
-    
+    // 全局时钟与异步复位
+    input                                   clk,
+    input                                   rst_n,
+    // 传递来自pc_reg的pc地址
+    input[`PORT_ADDR_WIDTH]                 ifu_pc_i,
+    output[`PORT_ADDR_WIDTH]                ifu_pc_o,
+    // 传递来自指令存储器的执行指令
+    input[`PORT_DATA_WIDTH]                 ifu_inst_data_i,
+    output[`PORT_DATA_WIDTH]                ifu_inst_data_o
 );
     
-    // 同步控制pc值与指令值
-    // 待考虑后续ex真的需要pc值吗？
-    always @(posedge clk or negedge rst_n) begin
-        if (rst_n == `RstEnable) begin
-            // inst_ifu_valid_o <= `Disable;
-            pc_ifu_o <= `Disable;
-            // inst_data_ifu_o <= `Disable;
-            // transfer pc to INST rom
-            pc_ifu_o <= `ZeroWord;
-            pc_send_valid_o <= `Disable;
-        end else begin
-            // // 来自ROM的指令内容有效
-            // if(inst_valid_i) begin
-            //     inst_data_ifu_o <= inst_data_i;
-            //     inst_ifu_valid_o <= `Enable;
-            // end
-            // ROM给出的可以接收指令ready信号
-            if(pc_receive_ready_i) begin
-                pc_ifu_o <= pc_i;
-                pc_send_valid_o <= `Enable;
-            end
-        end
-    end
+    assign ifu_pc_o = ifu_pc_i; 
+    assign ifu_inst_data_o = ifu_inst_data_i;
 
-
-   assign inst_ifu_valid_o = inst_valid_i ? `Enable : `Disable;
-   assign inst_data_ifu_o = inst_valid_i ? inst_data_i : `Disable;
 
 endmodule
 

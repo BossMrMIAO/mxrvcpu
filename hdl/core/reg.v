@@ -11,16 +11,15 @@ module regu (
     input rst_n,
 
     // id读取信号
-    input[`RegBusPort] rs1_i,
-    input[`RegBusPort] rs2_i,
-    input   rs1_req_rd_valid_i, rs2_req_rd_valid_i,
-    output reg[`RegBusPort] rs1_reg_data_o,
-    output reg[`RegBusPort] rs2_reg_data_o,
+    input[`PORT_REG_ADDR_WIDTH]     regu_rs1_addr_i,
+    input[`PORT_REG_ADDR_WIDTH]     regu_rs2_addr_i,
+    output reg[`RegBusPort]         regu_rs1_reg_data_o,
+    output reg[`RegBusPort]         regu_rs2_reg_data_o,
 
     // ex写回操作
-    input[`RegBusPort] rd_i,
-    input[`RegBusPort] rd_data_i,
-    input   rd_req_wr_valid_i
+    input[`PORT_REG_ADDR_WIDTH]     regu_rd_addr_i,
+    input[`RegBusPort]              regu_rd_data_i,
+    input                           regu_rd_wr_en_i
  
 
 );
@@ -28,24 +27,37 @@ module regu (
     // 寄存器
     reg [`RegBusPort]x_reg[0:31];
 
+    // 初始化寄存器或循环参量
+    integer i;
 
-
-    // 读写逻辑
-    always @(*) begin
+    // 读取组合逻辑
+    always @(*) begin : reg_core_read
         if(rst_n == `RstEnable) begin
-            rs1_reg_data_o = `ZeroWord;
-            rs2_reg_data_o = `ZeroWord;
-            for (int i = 0; i < 32; i = i + 1) begin
-                x_reg[i] <= i;  // 复位时再次初始化
+            regu_rs1_reg_data_o = `ZeroWord;
+            regu_rs2_reg_data_o = `ZeroWord;
+            for (i = 0; i < 32; i = i + 1) begin
+                x_reg[i] <= i;  // 复位时再次初始化, 实际使用全部初始化为0
             end
         end else begin
-            if(rd_req_wr_valid_i)    begin
-                x_reg[rd_i] = rd_data_i;
+            // 这里注意初始化的时候必须直接x[0]=0
+            if(regu_rd_wr_en_i)    begin
+                regu_rs1_reg_data_o = (regu_rs1_addr_i == regu_rd_addr_i && regu_rs1_addr_i != 0) ? regu_rd_data_i : x_reg[regu_rs1_addr_i];
+                regu_rs2_reg_data_o = (regu_rs2_addr_i == regu_rd_addr_i && regu_rs2_addr_i != 0) ? regu_rd_data_i : x_reg[regu_rs2_addr_i];
             end else begin
-                rs1_reg_data_o = rs1_req_rd_valid_i ? x_reg[rs1_i] : `ZeroWord;
-                rs2_reg_data_o = rs2_req_rd_valid_i ? x_reg[rs2_i] : `ZeroWord;
+                regu_rs1_reg_data_o = x_reg[regu_rs1_addr_i];
+                regu_rs2_reg_data_o = x_reg[regu_rs2_addr_i];
             end
         end
+    end
+
+    always @(posedge clk or negedge rst_n) begin
+        if(rst_n == `RstEnable) begin
+
+        end else begin
+            x_reg[regu_rd_addr_i] <= (regu_rd_wr_en_i && regu_rd_addr_i != 0) ? regu_rd_data_i : x_reg[regu_rd_addr_i];
+        end
+
+
     end
 
 endmodule
