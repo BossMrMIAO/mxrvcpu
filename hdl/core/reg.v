@@ -25,7 +25,7 @@ module regu (
 );
     
     // 寄存器
-    reg [`RegBusPort]x_reg[0:31];
+    reg [`RegBusPort]x_reg[0:`REG_DEPTH-1];
 
     // 初始化寄存器或循环参量
     integer i;
@@ -35,7 +35,7 @@ module regu (
         if(rst_n == `RstEnable) begin
             regu_rs1_reg_data_o = `ZeroWord;
             regu_rs2_reg_data_o = `ZeroWord;
-            for (i = 0; i < 32; i = i + 1) begin
+            for (i = 0; i < `REG_DEPTH; i = i + 1) begin
                 x_reg[i] <= i;  // 复位时再次初始化, 实际使用全部初始化为0
             end
         end else begin

@@ -72,6 +72,9 @@
 `define funct3_WIDTH            3
 `define funct7_WIDTH            7
 `define CSR_WIDTH               12
+`define REG_DEPTH               32
+`define INST_ROM_DEPTH          512
+`define DATA_RAM_DEPTH          4096
 
 // I type inst
 `define INST_TYPE_I             7'b0010011

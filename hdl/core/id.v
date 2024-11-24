@@ -83,7 +83,8 @@ module id (
                 `INST_TYPE_S: begin
                     id_rs1_addr_o = id_inst_data_i[19:15];
                     id_rs2_addr_o = id_inst_data_i[24:20];
-                    id_imm_o = id_inst_data_i[31] ? {20'hf_ffff, id_inst_data_i[31:20]} : {20'h0, id_inst_data_i[31:20]};
+                    id_imm_o = id_inst_data_i[31] ? {20'hf_ffff, id_inst_data_i[31:25], id_inst_data_i[11:7]} :
+                                                     {20'h0, id_inst_data_i[31:25], id_inst_data_i[11:7]};
                     id_err_o = `Disable;
                 end
                 `INST_TYPE_R_M: begin

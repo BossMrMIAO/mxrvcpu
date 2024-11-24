@@ -37,7 +37,10 @@ module rv_core_test_tb ();
 
     // initial ROM for load inst. content
     initial begin
-        $readmemh ("../script/inst.data", rv_core_test_tb.soc_core_top_inst.inst_rom_inst.INST_ROM);
+        $readmemh ("../script/inst.data", rv_core_test_tb.soc_core_top_inst.inst_rom_inst._INST_ROM);
+        // LB,LBU,LH 指令需要读取<begin_signature> 位置的值，
+        // 也就是0x0000_1000地址的值 其值为0x0FF0_00FF，具体由测试文件决定
+        $readmemh ("../script/inst.data", rv_core_test_tb.soc_core_top_inst.data_ram_inst._DATA_RAM);
     end
 
     // sim timeout
@@ -74,6 +77,8 @@ module rv_core_test_tb ();
         end else begin
             $display("Simulation FAIL! s11 = %d", rv_core_test_tb.soc_core_top_inst.regu_inst.x_reg[`s11]);
         end
+
+        $finish;
     end
 
     

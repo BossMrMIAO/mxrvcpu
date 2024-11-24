@@ -14,11 +14,11 @@ module inst_rom (
     output[`PORT_DATA_WIDTH]    inst_rom_inst_data_o
 );
 
-    reg [`PORT_ADDR_WIDTH]INST_ROM[0:511];
+    reg [`PORT_ADDR_WIDTH]_INST_ROM[0:`INST_ROM_DEPTH-1];
 
 
 
-    assign inst_rom_inst_data_o = INST_ROM[inst_rom_pc_i >> 2];
+    assign inst_rom_inst_data_o = _INST_ROM[inst_rom_pc_i >> 2];
 
 
     

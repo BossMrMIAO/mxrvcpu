@@ -96,6 +96,15 @@ module soc_core_top (
     wire                        ctrl_id_ex_dff_pipeline_flush_flag;
     assign ctrl_id_ex_dff_pipeline_flush_flag = ctrl_pc_reg_pipeline_flush_flag;
 
+    // ex --- data_ram
+    wire                        ex_data_ram_wr_en;
+    wire[`PORT_ADDR_WIDTH]      ex_data_ram_addr;
+    wire[`PORT_DATA_WIDTH]      ex_data_ram_wr_data;
+
+    // data_ram --- ex
+    wire[`PORT_DATA_WIDTH]      data_ram_ex_rd_data;
+
+
 
 
 // 实例化SOC内核
@@ -216,9 +225,10 @@ module soc_core_top (
         .ex_rd_wr_en_o(ex_regu_rd_wr_en),
         .ex_rd_addr_o(ex_regu_rd_addr),
         .ex_rd_reg_data_o(ex_regu_rd_reg_data),
-        .ex_data_ram_wr_en_o(),
-        .ex_data_ram_wr_addr_o(),
-        .ex_data_ram_wr_data_o(),
+        .ex_data_ram_wr_en_o(ex_data_ram_wr_en),
+        .ex_data_ram_addr_o(ex_data_ram_addr),
+        .ex_data_ram_wr_data_o(ex_data_ram_wr_data),
+        .ex_data_ram_rd_data_i(data_ram_ex_rd_data),
         .ex_hold_flag_o(),
         .ex_div_busy_i()
       );
@@ -232,6 +242,15 @@ module soc_core_top (
         .ctrl_pipeline_flush_flag_o(ctrl_pc_reg_pipeline_flush_flag),
         .ctrl_pc_jump_o(ctrl_pc_reg_pc_jump),
         .ctrl_pipeline_hold_flag_o(ctrl_pc_reg_pipeline_hold_flag)
+      );
+
+    data_ram  data_ram_inst (
+        .clk(clk),
+        .rst_n(rst_n),
+        .data_ram_addr(ex_data_ram_addr),
+        .data_ram_wr_data(ex_data_ram_wr_data),
+        .data_ram_wr_en(ex_data_ram_wr_en),
+        .data_ram_rd_data_o(data_ram_ex_rd_data)
       );
 
 

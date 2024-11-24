@@ -38,16 +38,18 @@ module ex (
     output                              ex_rd_wr_en_o,
     output wire[`PORT_REG_ADDR_WIDTH]   ex_rd_addr_o,
     output reg[`RegBusPort]             ex_rd_reg_data_o,
-    // 回写存储器
-    output reg                          ex_data_ram_wr_en_o,
-    output reg[`PORT_ADDR_WIDTH]        ex_data_ram_wr_addr_o,
+    // 读写内存
+    output                              ex_data_ram_wr_en_o,
+    output reg[`PORT_ADDR_WIDTH]        ex_data_ram_addr_o,
     output reg[`PORT_DATA_WIDTH]        ex_data_ram_wr_data_o,
+    input[`PORT_DATA_WIDTH]             ex_data_ram_rd_data_i,
     
     // 接控制单元   
     output reg                          ex_hold_flag_o,
     
     // 接除法器 
     input                               ex_div_busy_i
+
 );  
 
     wire[`PORT_WORD_WIDTH] rs1_plus_imm;
@@ -98,6 +100,12 @@ module ex (
                             )                             )  ||
                         (ex_opcode_i == `INST_JAL        ) ||
                         (ex_opcode_i == `INST_JALR       )     ? `Enable : `Disable;
+
+    assign ex_data_ram_wr_en_o = (ex_opcode_i == `INST_TYPE_S && (
+                            (ex_funct3_i == `INST_SB    )                      |
+                            (ex_funct3_i == `INST_SH    )                      |
+                            (ex_funct3_i == `INST_SW    )  ) ) ? `Enable : `Disable;
+                                                
 
     // 组合逻辑执行指令操作
     always @(*) begin : ex_core
@@ -151,24 +159,77 @@ module ex (
             `INST_TYPE_L: begin
                 case(ex_funct3_i)
                     `INST_LB:    begin
-                        ex_rd_reg_data_o = {{24{rs1_plus_imm[7]}}, rs1_plus_imm[7:0]};
-                        
+                        ex_data_ram_addr_o = rs1_plus_imm;
+                        case(ex_data_ram_addr_o[1:0]) 
+                            2'b11:  begin
+                                ex_rd_reg_data_o = {{24{ex_data_ram_rd_data_i[31]}},ex_data_ram_rd_data_i[31:24]};
+                            end
+                            2'b10:  begin
+                                ex_rd_reg_data_o = {{24{ex_data_ram_rd_data_i[23]}},ex_data_ram_rd_data_i[23:16]};
+                            end
+                            2'b01:  begin
+                                ex_rd_reg_data_o = {{24{ex_data_ram_rd_data_i[15]}},ex_data_ram_rd_data_i[15:8]};
+                            end
+                            default:  begin
+                                ex_rd_reg_data_o = {{24{ex_data_ram_rd_data_i[7]}},ex_data_ram_rd_data_i[7:0]};
+                            end
+                        endcase
                     end
                     `INST_LH:    begin
-                        ex_rd_reg_data_o = {{16{rs1_plus_imm[15]}}, rs1_plus_imm[15:0]};
-                        
+                        ex_data_ram_addr_o = rs1_plus_imm;
+                        case(ex_data_ram_addr_o[1:0]) 
+                            2'b11:  begin
+                                ex_rd_reg_data_o = {{24{ex_data_ram_rd_data_i[31]}},ex_data_ram_rd_data_i[31:24]};
+                            end
+                            2'b10:  begin
+                                ex_rd_reg_data_o = {{16{ex_data_ram_rd_data_i[31]}},ex_data_ram_rd_data_i[31:16]};
+                            end
+                            2'b01:  begin
+                                ex_rd_reg_data_o = {{16{ex_data_ram_rd_data_i[23]}},ex_data_ram_rd_data_i[23:8]};
+                            end
+                            default:  begin
+                                ex_rd_reg_data_o = {{16{ex_data_ram_rd_data_i[15]}},ex_data_ram_rd_data_i[15:0]};
+                            end
+                        endcase
                     end
                     `INST_LW:    begin
-                        ex_rd_reg_data_o = rs1_plus_imm[31:0];
+                        ex_data_ram_addr_o = rs1_plus_imm;
+                        ex_rd_reg_data_o = ex_data_ram_rd_data_i[31:0];
                         
                     end
                     `INST_LBU:   begin
-                        ex_rd_reg_data_o = {24'h0, rs1_plus_imm[7:0]};
-                        
+                        ex_data_ram_addr_o = rs1_plus_imm;
+                        case(ex_data_ram_addr_o[1:0]) 
+                            2'b11:  begin
+                                ex_rd_reg_data_o = {24'h0,ex_data_ram_rd_data_i[31:24]};
+                            end
+                            2'b10:  begin
+                                ex_rd_reg_data_o = {24'h0,ex_data_ram_rd_data_i[23:16]};
+                            end
+                            2'b01:  begin
+                                ex_rd_reg_data_o = {24'h0,ex_data_ram_rd_data_i[15:8]};
+                            end
+                            default:  begin
+                                ex_rd_reg_data_o = {24'h0,ex_data_ram_rd_data_i[7:0]};
+                            end
+                        endcase                    
                     end
                     `INST_LHU:   begin
-                        ex_rd_reg_data_o = {16'h0, rs1_plus_imm[15:0]};
-                        
+                        ex_data_ram_addr_o = rs1_plus_imm;
+                        case(ex_data_ram_addr_o[1:0]) 
+                            2'b11:  begin
+                                ex_rd_reg_data_o = {24'h0,ex_data_ram_rd_data_i[31:24]};
+                            end
+                            2'b10:  begin
+                                ex_rd_reg_data_o = {16'h0,ex_data_ram_rd_data_i[31:16]};
+                            end
+                            2'b01:  begin
+                                ex_rd_reg_data_o = {16'h0,ex_data_ram_rd_data_i[23:8]};
+                            end
+                            default:  begin
+                                ex_rd_reg_data_o = {16'h0,ex_data_ram_rd_data_i[15:0]};
+                            end
+                        endcase                        
                     end
                     default:    begin
                         
@@ -179,19 +240,42 @@ module ex (
             `INST_TYPE_S: begin
                 case(ex_funct3_i)
                     `INST_SB:    begin
-                        ex_data_ram_wr_addr_o = ex_rs1_reg_data_i + $signed(ex_imm_i);
-                        ex_data_ram_wr_data_o = {24'h0, ex_rs2_reg_data_i[7:0]};
-                        ex_data_ram_wr_en_o = `Enable;
+                        ex_data_ram_addr_o = rs1_plus_imm;
+                        case(ex_data_ram_addr_o[1:0]) 
+                            2'b11:  begin
+                                ex_data_ram_wr_data_o = {ex_rs2_reg_data_i[7:0], ex_data_ram_rd_data_i[23:0]};
+                            end
+                            2'b10:  begin
+                                ex_data_ram_wr_data_o = {ex_data_ram_rd_data_i[31:24], ex_rs2_reg_data_i[7:0], ex_data_ram_rd_data_i[15:0]};
+                            end
+                            2'b01:  begin
+                                ex_data_ram_wr_data_o = {ex_data_ram_rd_data_i[31:16], ex_rs2_reg_data_i[7:0], ex_data_ram_rd_data_i[7:0]};
+                            end
+                            default:  begin
+                                ex_data_ram_wr_data_o = {ex_data_ram_rd_data_i[31:8], ex_rs2_reg_data_i[7:0]};
+                            end
+                        endcase
                     end
                     `INST_SH:    begin
-                        ex_data_ram_wr_addr_o = ex_rs1_reg_data_i + $signed(ex_imm_i);
-                        ex_data_ram_wr_data_o = {16'h0, ex_rs2_reg_data_i[15:0]};
-                        ex_data_ram_wr_en_o = `Enable;
+                        ex_data_ram_addr_o = rs1_plus_imm;
+                        case(ex_data_ram_addr_o[1:0]) 
+                            2'b11:  begin
+                                ex_data_ram_wr_data_o = {ex_rs2_reg_data_i[7:0], ex_data_ram_rd_data_i[23:0]};
+                            end
+                            2'b10:  begin
+                                ex_data_ram_wr_data_o = {ex_rs2_reg_data_i[15:0], ex_data_ram_rd_data_i[15:0]};
+                            end
+                            2'b01:  begin
+                                ex_data_ram_wr_data_o = {ex_data_ram_rd_data_i[31:24], ex_rs2_reg_data_i[15:0], ex_data_ram_rd_data_i[7:0]};
+                            end
+                            default:  begin
+                                ex_data_ram_wr_data_o = {ex_data_ram_rd_data_i[31:16], ex_rs2_reg_data_i[15:0]};
+                            end
+                        endcase
                     end
                     `INST_SW:    begin
-                        ex_data_ram_wr_addr_o = ex_rs1_reg_data_i + $signed(ex_imm_i);
+                        ex_data_ram_addr_o = rs1_plus_imm;
                         ex_data_ram_wr_data_o = ex_rs2_reg_data_i;
-                        ex_data_ram_wr_en_o = `Enable;
                     end
                     default:    begin
                         
