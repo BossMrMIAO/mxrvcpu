@@ -138,6 +138,18 @@ module id (
                         end
                     endcase
                 end
+
+                // fence type inst
+                `INST_TYPE_FENCE: begin
+                    case (id_funct3_o)
+                        `INST_FENCE:    begin
+                            
+                        end
+                        `INST_FENCE_I:  begin
+                            // 暂时只是一个无条件跳转下一条指令的指令
+                        end
+                    endcase
+                end 
                 default: begin
                     // err or start state
                     id_err_o = `Enable;

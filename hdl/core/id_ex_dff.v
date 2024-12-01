@@ -25,6 +25,7 @@ module id_ex_dff #(
     input[`PORT_REG_ADDR_WIDTH]     id_ex_dff_shamt_i,
     input[`PORT_WORD_WIDTH]         id_ex_dff_zimm_i,
     input[`PORT_WORD_WIDTH]         id_ex_dff_imm_i,
+    input[`PORT_CSR_WIDTH]          id_ex_dff_csr_addr_i,
     
     // data after inst decode
     output[`PORT_OPCODE_WIDTH]      id_ex_dff_opcode_o,
@@ -34,6 +35,7 @@ module id_ex_dff #(
     output[`PORT_REG_ADDR_WIDTH]    id_ex_dff_shamt_o,
     output[`PORT_WORD_WIDTH]        id_ex_dff_zimm_o,
     output[`PORT_WORD_WIDTH]        id_ex_dff_imm_o,
+    output[`PORT_CSR_WIDTH]         id_ex_dff_csr_addr_o,
 
     // reg data source storage
     input[`RegBusPort]              id_ex_dff_rs1_reg_data_i, id_ex_dff_rs2_reg_data_i,
@@ -92,6 +94,10 @@ module id_ex_dff #(
     s_bits_dff #(.bits_width(`RegBus)) u_s_bits_dff_1_11
     (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),
     .zero_point({`RegBus{1'b0}}),.d(id_ex_dff_pc_i),.q(id_ex_dff_pc_o));
+
+    s_bits_dff #(.bits_width(`CSR_WIDTH)) u_s_bits_dff_1_12
+    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),
+    .zero_point({`CSR_WIDTH{1'b0}}),.d(id_ex_dff_csr_addr_i),.q(id_ex_dff_csr_addr_o));
 
 
 endmodule

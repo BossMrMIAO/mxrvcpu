@@ -15,11 +15,11 @@ module csr_reg (
     
     // 读写寄存器一套接口
     input[`CsrRegAddrBusPort] csr_addr_i,
-    input   we_i,
+    input   csr_we_i,
     input[`RegBusPort]  csr_wdata_i,
     output reg[`RegBusPort] csr_rdata_o,
     // 状态寄存器必要信号
-    input   inst_succ_flag
+    input   csr_inst_succ_flag_i
     );
 
     // 浮点累计异常
@@ -91,7 +91,7 @@ module csr_reg (
             //{minstreth, minstret} <= `ZeroDouble;
             instret <= `ZeroDouble;
         end else begin
-            if (inst_succ_flag) begin
+            if (csr_inst_succ_flag_i) begin
                 //{minstreth, minstret} <= {minstreth, minstret} + 1'b1;
                 instret <= instret + 1'b1;
             end else begin
@@ -130,7 +130,7 @@ module csr_reg (
             // 读输出初始化
             csr_rdata_o <= `ZeroWord;
         end else begin
-            if (we_i == `Write) begin
+            if (csr_we_i == `Write) begin
                 case (csr_addr_i)
                     `CSR_FFLAGS: begin
                         fflags <= csr_wdata_i;

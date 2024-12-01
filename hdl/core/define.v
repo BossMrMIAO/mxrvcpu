@@ -73,7 +73,7 @@
 `define funct7_WIDTH            7
 `define CSR_WIDTH               12
 `define REG_DEPTH               32
-`define INST_ROM_DEPTH          512
+`define INST_ROM_DEPTH          4096
 `define DATA_RAM_DEPTH          4096
 
 // I type inst
@@ -151,8 +151,12 @@
 `define INST_CSRRWI             3'b101
 `define INST_CSRRSI             3'b110
 `define INST_CSRRCI             3'b111
-            
-`define INST_FENCE              7'b0001111
+
+// fence type inst
+`define INST_TYPE_FENCE         7'b0001111
+`define INST_FENCE              3'b000
+`define INST_FENCE_I            3'b001
+
 `define INST_ECALL              32'h73
 `define INST_EBREAK             32'h00100073
 

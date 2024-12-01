@@ -29,6 +29,7 @@ module ex (
     input[`PORT_REG_ADDR_WIDTH]         ex_shamt_i,
     input[`PORT_WORD_WIDTH]             ex_zimm_i,
     input[`PORT_WORD_WIDTH]             ex_imm_i,
+    input[`PORT_CSR_WIDTH]              ex_csr_addr_i,
 
     // 结果寄存器数值   
     input[`RegBusPort]                  ex_rs1_reg_data_i,
@@ -38,11 +39,23 @@ module ex (
     output                              ex_rd_wr_en_o,
     output wire[`PORT_REG_ADDR_WIDTH]   ex_rd_addr_o,
     output reg[`RegBusPort]             ex_rd_reg_data_o,
-    // 读写内存
+    // 读写data_ram
     output                              ex_data_ram_wr_en_o,
     output reg[`PORT_ADDR_WIDTH]        ex_data_ram_addr_o,
     output reg[`PORT_DATA_WIDTH]        ex_data_ram_wr_data_o,
     input[`PORT_DATA_WIDTH]             ex_data_ram_rd_data_i,
+    // 读写inst_rom
+    output                              ex_inst_rom_wr_en_o,
+    output reg[`PORT_ADDR_WIDTH]        ex_inst_rom_addr_o,
+    output reg[`PORT_DATA_WIDTH]        ex_inst_rom_wr_data_o,
+    input[`PORT_DATA_WIDTH]             ex_inst_rom_rd_data_i,
+
+    // 读写CSR寄存器
+    output                              ex_csr_wr_en_o,
+    output reg[`CsrRegAddrBusPort]      ex_csr_addr_o,
+    output reg[`RegBusPort]             ex_csr_wdata_o,
+    input[`RegBusPort]                  ex_csr_rdata_i, 
+    output                              ex_csr_inst_succ_flag_o,
     
     // 接控制单元   
     output reg                          ex_hold_flag_o,
@@ -53,6 +66,8 @@ module ex (
 );  
 
     wire[`PORT_WORD_WIDTH] rs1_plus_imm;
+    // 用于csrrw指令和csrrs等指令
+    reg[`RegBusPort]        t;
 
     integer a;
 
@@ -99,13 +114,20 @@ module ex (
                             (ex_funct3_i == `INST_BGEU   &&  (ex_rs1_reg_data_i >= ex_rs2_reg_data_i)                   )                    
                             )                             )  ||
                         (ex_opcode_i == `INST_JAL        ) ||
-                        (ex_opcode_i == `INST_JALR       )     ? `Enable : `Disable;
+                        (ex_opcode_i == `INST_JALR       ) ||
+                        (ex_opcode_i == `INST_TYPE_FENCE )     ? `Enable : `Disable;
 
     assign ex_data_ram_wr_en_o = (ex_opcode_i == `INST_TYPE_S && (
                             (ex_funct3_i == `INST_SB    )                      |
                             (ex_funct3_i == `INST_SH    )                      |
                             (ex_funct3_i == `INST_SW    )  ) ) ? `Enable : `Disable;
-                                                
+
+    assign ex_inst_rom_wr_en_o = (ex_opcode_i == `INST_TYPE_S && (
+                            (ex_funct3_i == `INST_SB    )                      |
+                            (ex_funct3_i == `INST_SH    )                      |
+                            (ex_funct3_i == `INST_SW    )  ) ) ? `Enable : `Disable;     
+                  
+                                          
 
     // 组合逻辑执行指令操作
     always @(*) begin : ex_core
@@ -191,6 +213,22 @@ module ex (
                                 ex_rd_reg_data_o = {{16{ex_data_ram_rd_data_i[15]}},ex_data_ram_rd_data_i[15:0]};
                             end
                         endcase
+                        // 临时为了通过fence指令，读写inst_rom
+                        ex_inst_rom_addr_o = rs1_plus_imm;
+                        case(ex_inst_rom_addr_o[1:0]) 
+                            2'b11:  begin
+                                ex_rd_reg_data_o = {{24{ex_inst_rom_rd_data_i[31]}},ex_inst_rom_rd_data_i[31:24]};
+                            end
+                            2'b10:  begin
+                                ex_rd_reg_data_o = {{16{ex_inst_rom_rd_data_i[31]}},ex_inst_rom_rd_data_i[31:16]};
+                            end
+                            2'b01:  begin
+                                ex_rd_reg_data_o = {{16{ex_inst_rom_rd_data_i[23]}},ex_inst_rom_rd_data_i[23:8]};
+                            end
+                            default:  begin
+                                ex_rd_reg_data_o = {{16{ex_inst_rom_rd_data_i[15]}},ex_inst_rom_rd_data_i[15:0]};
+                            end
+                        endcase
                     end
                     `INST_LW:    begin
                         ex_data_ram_addr_o = rs1_plus_imm;
@@ -270,6 +308,22 @@ module ex (
                             end
                             default:  begin
                                 ex_data_ram_wr_data_o = {ex_data_ram_rd_data_i[31:16], ex_rs2_reg_data_i[15:0]};
+                            end
+                        endcase
+                        // 临时为了fence指令启动inst_rom的读写
+                        ex_inst_rom_addr_o = rs1_plus_imm;
+                        case(ex_inst_rom_addr_o[1:0]) 
+                            2'b11:  begin
+                                ex_inst_rom_wr_data_o = {ex_rs2_reg_data_i[7:0], ex_inst_rom_rd_data_i[23:0]};
+                            end
+                            2'b10:  begin
+                                ex_inst_rom_wr_data_o = {ex_rs2_reg_data_i[15:0], ex_inst_rom_rd_data_i[15:0]};
+                            end
+                            2'b01:  begin
+                                ex_inst_rom_wr_data_o = {ex_inst_rom_rd_data_i[31:24], ex_rs2_reg_data_i[15:0], ex_inst_rom_rd_data_i[7:0]};
+                            end
+                            default:  begin
+                                ex_inst_rom_wr_data_o = {ex_inst_rom_rd_data_i[31:16], ex_rs2_reg_data_i[15:0]};
                             end
                         endcase
                     end
@@ -378,25 +432,53 @@ module ex (
             `INST_CSR:  begin
                 case (ex_funct3_i)
                     `INST_CSRRW:    begin
-                        
+                        ex_csr_addr_o = ex_csr_addr_i;
+                        t = ex_csr_rdata_i;
+                        ex_csr_wdata_o = ex_rs1_reg_data_i;
+                        ex_rd_reg_data_o = t;
                     end 
                     `INST_CSRRS:    begin
-                        
+                        ex_csr_addr_o = ex_csr_addr_i;
+                        t = ex_csr_rdata_i;
+                        ex_csr_wdata_o = t | ex_rs1_reg_data_i;
+                        ex_rd_reg_data_o = t;
                     end
                     `INST_CSRRC:    begin
-                        
+                        ex_csr_addr_o = ex_csr_addr_i;
+                        t = ex_csr_rdata_i;
+                        ex_csr_wdata_o = t & ~ex_rs1_reg_data_i;
+                        ex_rd_reg_data_o = t;
                     end
                     `INST_CSRRWI:   begin
-                        
+                        ex_csr_addr_o = ex_csr_addr_i;
+                        ex_rd_reg_data_o = ex_csr_rdata_i;
+                        ex_csr_wdata_o = {27'h0, ex_zimm_i};
                     end
                     `INST_CSRRSI:   begin
-                        
+                        ex_csr_addr_o = ex_csr_addr_i;
+                        t = ex_csr_rdata_i;
+                        ex_csr_wdata_o = t | {27'h0, ex_zimm_i};
+                        ex_rd_reg_data_o = t;
                     end
                     `INST_CSRRCI:   begin
-                        
+                        ex_csr_addr_o = ex_csr_addr_i;
+                        t = ex_csr_rdata_i;
+                        ex_csr_wdata_o = t & ~{27'h0, ex_zimm_i};
+                        ex_rd_reg_data_o = t;
                     end
                     default:    begin
                         
+                    end
+                endcase
+            end
+            // fence type inst
+            `INST_TYPE_FENCE: begin
+                case (ex_funct3_i)
+                    `INST_FENCE:    begin
+                        
+                    end
+                    `INST_FENCE_I:  begin
+                        ex_pc_jump_o = ex_pc_i + 32'h4;
                     end
                 endcase
             end
