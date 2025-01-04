@@ -16,12 +16,16 @@ module ifu (
     // 传递来自pc_reg的pc地址
     input[`PORT_ADDR_WIDTH]                 ifu_pc_i,
     output[`PORT_ADDR_WIDTH]                ifu_pc_o,
+    // 传递来自inst_rom的pc地址，以此规范化此单元为取指单元
+    output[`PORT_ADDR_WIDTH]                ifu_inst_rom_pc_o,
+
     // 传递来自指令存储器的执行指令
     input[`PORT_DATA_WIDTH]                 ifu_inst_data_i,
     output[`PORT_DATA_WIDTH]                ifu_inst_data_o
 );
     
     assign ifu_pc_o = ifu_pc_i; 
+    assign ifu_inst_rom_pc_o = ifu_pc_i;
     assign ifu_inst_data_o = ifu_inst_data_i;
 
 

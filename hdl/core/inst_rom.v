@@ -11,13 +11,12 @@ module inst_rom (
     // 来自ifu的pc地址(实际上是来自于pc_reg的)
     input[`PORT_ADDR_WIDTH]         inst_rom_pc_i,
     // 送给ifu的指令内容
-    output[`PORT_DATA_WIDTH]    inst_rom_inst_data_o,
+    output[`PORT_DATA_WIDTH]        inst_rom_inst_data_o,
 
-    // 指令存储器,给ex使用
-    input[`PORT_ADDR_WIDTH]         inst_rom_addr,
-    input[`PORT_DATA_WIDTH]         inst_rom_wr_data,
-    input                           inst_rom_wr_en,    
-    
+    // 指令存储器,给memc操作存储器使用
+    input[`PORT_ADDR_WIDTH]         inst_rom_addr_i,
+    input[`PORT_DATA_WIDTH]         inst_rom_wr_data_i,
+    input                           inst_rom_wr_en_i,    
     output[`PORT_DATA_WIDTH]        inst_rom_rd_data_o
 );
 
@@ -26,7 +25,7 @@ module inst_rom (
     integer i;
 
     assign inst_rom_inst_data_o = _INST_ROM[inst_rom_pc_i >> 2];
-    assign inst_rom_rd_data_o = _INST_ROM[inst_rom_addr >> 2];
+    assign inst_rom_rd_data_o = _INST_ROM[inst_rom_addr_i >> 2];
 
     // 复位初始化内存数据与写入数据
     always @(posedge clk or negedge rst_n) begin : WRITE_LOGIC
@@ -36,8 +35,8 @@ module inst_rom (
             //     _DATA_RAM[i] = `ZeroWord;
             // end
         end
-        else if(inst_rom_wr_en) begin
-            _INST_ROM[inst_rom_addr >> 2] <= inst_rom_wr_data;
+        else if(inst_rom_wr_en_i) begin
+            _INST_ROM[inst_rom_addr_i >> 2] <= inst_rom_wr_data_i;
         end
     end
     

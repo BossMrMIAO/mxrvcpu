@@ -42,61 +42,63 @@ module id_ex_dff #(
     output[`RegBusPort]             id_ex_dff_rs1_reg_data_o, id_ex_dff_rs2_reg_data_o,
 
     // 来自ctrl冲刷信号
-    input                           id_ex_dff_pipeline_flush_flag
+    input                           id_ex_dff_pipeline_flush_flag,
+    // 来自ctrl保持信号
+    input                           id_ex_dff_pipeline_hold_flag
 
 
 );
 
-    s_bits_dff #(.bits_width(`OPCODE_WIDTH)) u_s_bits_dff_1_0 
-    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),
+    s_bits_dff #(.bits_width(`OPCODE_WIDTH)) u_s_bits_dff_opcode 
+    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),.hold_flag(id_ex_dff_pipeline_hold_flag),
     .zero_point({`OPCODE_WIDTH{1'b0}}),.d(id_ex_dff_opcode_i),.q(id_ex_dff_opcode_o));
 
-    s_bits_dff #(.bits_width(`REG_ADDR_WIDTH)) u_s_bits_dff_1_1 
-    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),
+    s_bits_dff #(.bits_width(`REG_ADDR_WIDTH)) u_s_bits_dff_rd
+    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),.hold_flag(id_ex_dff_pipeline_hold_flag),
     .zero_point({`REG_ADDR_WIDTH{1'b0}}),.d(id_ex_dff_rd_i),.q(id_ex_dff_rd_o));
 
-    s_bits_dff #(.bits_width(`REG_ADDR_WIDTH)) u_s_bits_dff_1_2
-    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),
+    s_bits_dff #(.bits_width(`REG_ADDR_WIDTH)) u_s_bits_dff_rs1
+    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),.hold_flag(id_ex_dff_pipeline_hold_flag),
     .zero_point({`REG_ADDR_WIDTH{1'b0}}),.d(id_ex_dff_rs1_i),.q(id_ex_dff_rs1_o));
 
-    s_bits_dff #(.bits_width(`REG_ADDR_WIDTH))u_s_bits_dff_1_3
-    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),
+    s_bits_dff #(.bits_width(`REG_ADDR_WIDTH))u_s_bits_dff_rs2
+    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),.hold_flag(id_ex_dff_pipeline_hold_flag),
     .zero_point({`REG_ADDR_WIDTH{1'b0}}),.d(id_ex_dff_rs2_i),.q(id_ex_dff_rs2_o));
     
-    s_bits_dff #(.bits_width(`funct3_WIDTH)) u_s_bits_dff_1_4
-    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),
+    s_bits_dff #(.bits_width(`funct3_WIDTH)) u_s_bits_dff_funct3
+    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),.hold_flag(id_ex_dff_pipeline_hold_flag),
     .zero_point({`funct3_WIDTH{1'b0}}),.d(id_ex_dff_funct3_i),.q(id_ex_dff_funct3_o));
 
-    s_bits_dff #(.bits_width(`funct7_WIDTH)) u_s_bits_dff_1_5
-    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),
+    s_bits_dff #(.bits_width(`funct7_WIDTH)) u_s_bits_dff_funct7
+    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),.hold_flag(id_ex_dff_pipeline_hold_flag),
     .zero_point({`funct7_WIDTH{1'b0}}),.d(id_ex_dff_funct7_i),.q(id_ex_dff_funct7_o));
 
-    s_bits_dff #(.bits_width(`REG_ADDR_WIDTH)) u_s_bits_dff_1_6 
-    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),
+    s_bits_dff #(.bits_width(`REG_ADDR_WIDTH)) u_s_bits_dff_shamt 
+    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),.hold_flag(id_ex_dff_pipeline_hold_flag),
     .zero_point({`REG_ADDR_WIDTH{1'b0}}),.d(id_ex_dff_shamt_i),.q(id_ex_dff_shamt_o));
 
-    s_bits_dff #(.bits_width(`REG_ADDR_WIDTH)) u_s_bits_dff_1_7
-    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),
+    s_bits_dff #(.bits_width(`REG_ADDR_WIDTH)) u_s_bits_dff_zimm
+    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),.hold_flag(id_ex_dff_pipeline_hold_flag),
     .zero_point({`REG_ADDR_WIDTH{1'b0}}),.d(id_ex_dff_zimm_i),.q(id_ex_dff_zimm_o));
 
-    s_bits_dff #(.bits_width(`WORD_WIDTH)) u_s_bits_dff_1_8
-    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),
+    s_bits_dff #(.bits_width(`WORD_WIDTH)) u_s_bits_dff_imm
+    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),.hold_flag(id_ex_dff_pipeline_hold_flag),
     .zero_point({`WORD_WIDTH{1'b0}}),.d(id_ex_dff_imm_i),.q(id_ex_dff_imm_o));
 
-    s_bits_dff #(.bits_width(`RegBus)) u_s_bits_dff_1_9
-    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),
+    s_bits_dff #(.bits_width(`RegBus)) u_s_bits_dff_rs1_reg_data
+    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),.hold_flag(id_ex_dff_pipeline_hold_flag),
     .zero_point({`RegBus{1'b0}}),.d(id_ex_dff_rs1_reg_data_i),.q(id_ex_dff_rs1_reg_data_o));
 
-    s_bits_dff #(.bits_width(`RegBus)) u_s_bits_dff_1_10
-    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),
+    s_bits_dff #(.bits_width(`RegBus)) u_s_bits_dff_rs2_reg_data
+    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),.hold_flag(id_ex_dff_pipeline_hold_flag),
     .zero_point({`RegBus{1'b0}}),.d(id_ex_dff_rs2_reg_data_i),.q(id_ex_dff_rs2_reg_data_o));
 
-    s_bits_dff #(.bits_width(`RegBus)) u_s_bits_dff_1_11
-    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),
+    s_bits_dff #(.bits_width(`RegBus)) u_s_bits_dff_pc
+    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),.hold_flag(id_ex_dff_pipeline_hold_flag),
     .zero_point({`RegBus{1'b0}}),.d(id_ex_dff_pc_i),.q(id_ex_dff_pc_o));
 
-    s_bits_dff #(.bits_width(`CSR_WIDTH)) u_s_bits_dff_1_12
-    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),
+    s_bits_dff #(.bits_width(`CSR_WIDTH)) u_s_bits_dff_csr_addr
+    (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),.hold_flag(id_ex_dff_pipeline_hold_flag),
     .zero_point({`CSR_WIDTH{1'b0}}),.d(id_ex_dff_csr_addr_i),.q(id_ex_dff_csr_addr_o));
 
 

@@ -76,6 +76,10 @@
 `define INST_ROM_DEPTH          4096
 `define DATA_RAM_DEPTH          4096
 
+// MEM ARCH
+`define HF_ARCH                 1'b1
+`define VN_ARCH                 1'b0
+
 // I type inst
 `define INST_TYPE_I             7'b0010011
 `define INST_ADDI               3'b000

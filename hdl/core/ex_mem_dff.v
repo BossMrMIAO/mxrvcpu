@@ -27,18 +27,23 @@ module ex_mem_dff (
     // 读写data_ram
     input                          ex_mem_data_ram_wr_en_i,
     input[`PORT_ADDR_WIDTH]        ex_mem_data_ram_addr_i,
-    input[`PORT_DATA_WIDTH]        ex_mem_data_ram_wr_data_i,
     output                         ex_mem_data_ram_wr_en_o,
     output[`PORT_ADDR_WIDTH]       ex_mem_data_ram_addr_o,
-    output[`PORT_DATA_WIDTH]       ex_mem_data_ram_wr_data_o,
+
     
     // 读写inst_rom
     input                          ex_mem_inst_rom_wr_en_i,
     input[`PORT_ADDR_WIDTH]        ex_mem_inst_rom_addr_i,
-    input[`PORT_DATA_WIDTH]        ex_mem_inst_rom_wr_data_i,
     output                         ex_mem_inst_rom_wr_en_o,
     output[`PORT_ADDR_WIDTH]       ex_mem_inst_rom_addr_o,
-    output[`PORT_DATA_WIDTH]       ex_mem_inst_rom_wr_data_o,
+
+    // 供mem使用的存储指令判别
+    input[`PORT_OPCODE_WIDTH]      ex_mem_opcode_i,
+    input[`PORT_funct3_WIDTH]      ex_mem_funct3_i,
+    input[`RegBusPort]             ex_mem_rs2_reg_data_i,
+    output[`PORT_OPCODE_WIDTH]     ex_mem_opcode_o,
+    output[`PORT_funct3_WIDTH]     ex_mem_funct3_o,
+    output[`RegBusPort]            ex_mem_rs2_reg_data_o,
 
     // 来自ctrl冲刷信号
     input                       ex_mem_dff_pipeline_flush_flag
@@ -69,10 +74,6 @@ module ex_mem_dff (
         .clk(clk),.rst_n(rst_n),.flush_flag(ex_mem_dff_pipeline_flush_flag),
         .zero_point({`WORD_WIDTH{1'b0}}),.d(ex_mem_data_ram_addr_i),.q(ex_mem_data_ram_addr_o));
 
-    s_bits_dff #(.bits_width(`WORD_WIDTH)) u_s_bits_dff_ex_mem_data_ram_wr_data  (
-        .clk(clk),.rst_n(rst_n),.flush_flag(ex_mem_dff_pipeline_flush_flag),
-        .zero_point({`WORD_WIDTH{1'b0}}),.d(ex_mem_data_ram_wr_data_i),.q(ex_mem_data_ram_wr_data_o));
-
     s_bits_dff #(.bits_width(1)) u_s_bits_dff_ex_mem_inst_rom_wr_en  (
         .clk(clk),.rst_n(rst_n),.flush_flag(ex_mem_dff_pipeline_flush_flag),
         .zero_point({1'b0}),.d(ex_mem_inst_rom_wr_en_i),.q(ex_mem_inst_rom_wr_en_o));
@@ -81,10 +82,18 @@ module ex_mem_dff (
         .clk(clk),.rst_n(rst_n),.flush_flag(ex_mem_dff_pipeline_flush_flag),
         .zero_point({`WORD_WIDTH{1'b0}}),.d(ex_mem_inst_rom_addr_i),.q(ex_mem_inst_rom_addr_o));
 
-    s_bits_dff #(.bits_width(`WORD_WIDTH)) u_s_bits_dff_ex_mem_inst_rom_wr_data  (
+    s_bits_dff #(.bits_width(`OPCODE_WIDTH)) u_s_bits_dff_ex_mem_opcode  (
         .clk(clk),.rst_n(rst_n),.flush_flag(ex_mem_dff_pipeline_flush_flag),
-        .zero_point({`WORD_WIDTH{1'b0}}),.d(ex_mem_inst_rom_wr_data_i),.q(ex_mem_inst_rom_wr_data_o));
+        .zero_point({`OPCODE_WIDTH{1'b0}}),.d(ex_mem_opcode_i),.q(ex_mem_opcode_o));
 
+    s_bits_dff #(.bits_width(`funct3_WIDTH)) u_s_bits_dff_ex_mem_funct3  (
+        .clk(clk),.rst_n(rst_n),.flush_flag(ex_mem_dff_pipeline_flush_flag),
+        .zero_point({`funct3_WIDTH{1'b0}}),.d(ex_mem_funct3_i),.q(ex_mem_funct3_o));
+    
+    s_bits_dff #(.bits_width(`RegBus)) u_s_bits_dff_ex_mem_rs2_reg_data  (
+        .clk(clk),.rst_n(rst_n),.flush_flag(ex_mem_dff_pipeline_flush_flag),
+        .zero_point({`RegBus{1'b0}}),.d(ex_mem_rs2_reg_data_i),.q(ex_mem_rs2_reg_data_o));
+    
         
 
 

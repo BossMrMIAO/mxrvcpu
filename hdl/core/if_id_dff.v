@@ -20,30 +20,18 @@ module if_id_dff (
     output[`PORT_DATA_WIDTH]    ifu_id_dff_inst_data_o,
 
     // 来自ctrl冲刷信号
-    input                       if_id_dff_pipeline_flush_flag
+    input                       if_id_dff_pipeline_flush_flag,
+    // 来自ctrl保持信号
+    input                       if_id_dff_pipeline_hold_flag
     
 );
 
-    s_bits_dff #(
-        .bits_width(`WORD_WIDTH)
-    ) u_s_bits_dff_0_0  (
-        .clk(clk),
-        .rst_n(rst_n),
-        .flush_flag(if_id_dff_pipeline_flush_flag),
-        .zero_point({`WORD_WIDTH{1'b0}}),
-        .d(ifu_id_dff_pc_i),
-        .q(ifu_id_dff_pc_o)
-    );
+    s_bits_dff #(.bits_width(`WORD_WIDTH)) u_s_bits_dff_pc  (
+    .clk(clk),.rst_n(rst_n),.flush_flag(if_id_dff_pipeline_flush_flag),.hold_flag(if_id_dff_pipeline_hold_flag),
+    .zero_point({`WORD_WIDTH{1'b0}}),.d(ifu_id_dff_pc_i),.q(ifu_id_dff_pc_o));
 
-    s_bits_dff #(
-        .bits_width(`WORD_WIDTH)
-    ) u_s_bits_dff_0_1  (
-        .clk(clk),
-        .rst_n(rst_n),
-        .flush_flag(if_id_dff_pipeline_flush_flag),
-        .zero_point({`WORD_WIDTH{1'b0}}),
-        .d(ifu_id_dff_inst_data_i),
-        .q(ifu_id_dff_inst_data_o)
-    );
+    s_bits_dff #(.bits_width(`WORD_WIDTH)) u_s_bits_dff_inst_data  (
+    .clk(clk),.rst_n(rst_n),.flush_flag(if_id_dff_pipeline_flush_flag),.hold_flag(if_id_dff_pipeline_hold_flag),
+    .zero_point({`WORD_WIDTH{1'b0}}),.d(ifu_id_dff_inst_data_i),.q(ifu_id_dff_inst_data_o));
     
 endmodule

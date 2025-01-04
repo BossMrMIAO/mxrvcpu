@@ -34,7 +34,7 @@ module mem_wb_dff (
 
     s_bits_dff #(.bits_width(1)) u_s_bits_dff_mem_wb_rd_wr_en  (
         .clk(clk),.rst_n(rst_n),.flush_flag(mem_wb_dff_pipeline_flush_flag),
-        .zero_point({1{1'b0}}),.d(ifu_id_dff_inst_data_i),.q(ifu_id_dff_inst_data_o));
+        .zero_point({1{1'b0}}),.d(mem_wb_rd_wr_en_i),.q(mem_wb_rd_wr_en_o));
 
     s_bits_dff #(.bits_width(`REG_ADDR_WIDTH)) u_s_bits_dff_mem_wb_rd_addr  (
         .clk(clk),.rst_n(rst_n),.flush_flag(mem_wb_dff_pipeline_flush_flag),
