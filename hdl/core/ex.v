@@ -52,12 +52,10 @@ module ex (
     output[`RegBusPort]                 ex_mem_rs2_reg_data_o,
  
 
-    // 读写CSR寄存器
-    output                              ex_csr_wr_en_o,
-    output reg[`CsrRegAddrBusPort]      ex_csr_addr_o,
-    output reg[`RegBusPort]             ex_csr_wdata_o,
+    // 读取CSR寄存器，因为CSR寄存器相关指令在ex阶段获取CSR寄存器的值
+    output reg[`CsrRegAddrBusPort]      ex_csr_raddr_o,
     input[`RegBusPort]                  ex_csr_rdata_i, 
-    output                              ex_csr_inst_succ_flag_o,
+    output reg[`RegBusPort]             ex_csr_wdata_o,
     
     // 接控制单元   
     output reg                          ex_hold_flag_o,
@@ -68,8 +66,9 @@ module ex (
 );  
 
     wire[`PORT_WORD_WIDTH] rs1_plus_imm;
-    // 用于csrrw指令和csrrs等指令
+    // 用于csrrw指令和csrrs等指令的暂存
     reg[`RegBusPort]        t;
+
 
     integer a;
 
@@ -132,214 +131,221 @@ module ex (
 
     // 组合逻辑执行指令操作
     always @(*) begin : ex_core
-        case (ex_opcode_i)
-            `INST_TYPE_I: begin
-                case (ex_funct3_i)
-                    // add immedite data
-                    `INST_ADDI: begin
-                        ex_rd_reg_data_o = ex_imm_i + ex_rs1_reg_data_i;
-                        
-                    end
-                    `INST_SLTI: begin
-                        ex_rd_reg_data_o = ($signed(ex_rs1_reg_data_i) < $signed(ex_imm_i) ) ? 1 : 0;
-                        
-                    end
-                    `INST_SLTIU:  begin
-                        ex_rd_reg_data_o = (ex_rs1_reg_data_i < ex_imm_i ) ? 1 : 0;
-                        
-                    end
-                    `INST_ANDI: begin
-                        ex_rd_reg_data_o = ex_rs1_reg_data_i & ex_imm_i;
-                        
-                    end
-                    `INST_XORI: begin
-                        ex_rd_reg_data_o = ex_rs1_reg_data_i ^ ex_imm_i;
-                        
-                    end 
-                    `INST_ORI:  begin
-                        ex_rd_reg_data_o = ex_rs1_reg_data_i | ex_imm_i;
-                        
-                    end
-                    // slli rd, rs1, shamt; x[rd] = x[rs1] << shamt(shamt[5] != 0 (RV32I))
-                    `INST_SLLI: begin
-                        ex_rd_reg_data_o = ex_rs1_reg_data_i << ex_shamt_i;
-                        
-                    end
-                    `INST_SRLI_SRAI:  begin
-                        if (ex_funct7_i[5] & ~ex_funct7_i[0]) begin
-                            ex_rd_reg_data_o = $signed(ex_rs1_reg_data_i) >>> ex_shamt_i[4:0];
-                        end else if(~ex_funct7_i[5] & ~ex_funct7_i[0]) begin
-                            ex_rd_reg_data_o = ex_rs1_reg_data_i >> ex_shamt_i[4:0];
-                        end else begin
-                            ex_rd_reg_data_o = `ZeroWord;
+        if (!rst_n) begin : rst
+            ex_pc_jump_o = `ZeroWord;
+            ex_rd_reg_data_o = `ZeroWord;
+            ex_data_ram_addr_o = `ZeroWord;
+            ex_inst_rom_addr_o = `ZeroWord;
+            ex_csr_raddr_o = `Disable;
+            ex_csr_wdata_o = `ZeroWord;
+            ex_hold_flag_o = `Disable;
+        end : rst
+        else begin : ex_opcode_process
+            case (ex_opcode_i)
+                `INST_TYPE_I: begin
+                    case (ex_funct3_i)
+                        // add immedite data
+                        `INST_ADDI: begin
+                            ex_rd_reg_data_o = ex_imm_i + ex_rs1_reg_data_i;
                         end
-                    end
-                    default: begin
-                        
-                    end
-                endcase
-            end
-            // 所有LOAD/SAVE指令读取存储器数据全部交由mem模块处理，ex模块只负责计算存储器地址
-            `INST_TYPE_L, `INST_TYPE_S: begin
-                ex_data_ram_addr_o = rs1_plus_imm;
-                // 为满足冯诺依曼结构的指令测试序列，增加一个相当于单存储器的操作需求，否则后续save后读取不能实现
-                ex_inst_rom_addr_o = rs1_plus_imm;
-            end
+                        `INST_SLTI: begin
+                            ex_rd_reg_data_o = ($signed(ex_rs1_reg_data_i) < $signed(ex_imm_i) ) ? 1 : 0;
+                        end
+                        `INST_SLTIU:  begin
+                            ex_rd_reg_data_o = (ex_rs1_reg_data_i < ex_imm_i ) ? 1 : 0;  
+                        end
+                        `INST_ANDI: begin
+                            ex_rd_reg_data_o = ex_rs1_reg_data_i & ex_imm_i; 
+                        end
+                        `INST_XORI: begin
+                            ex_rd_reg_data_o = ex_rs1_reg_data_i ^ ex_imm_i; 
+                        end 
+                        `INST_ORI:  begin
+                            ex_rd_reg_data_o = ex_rs1_reg_data_i | ex_imm_i; 
+                        end
+                        // slli rd, rs1, shamt; x[rd] = x[rs1] << shamt(shamt[5] != 0 (RV32I))
+                        `INST_SLLI: begin
+                            ex_rd_reg_data_o = ex_rs1_reg_data_i << ex_shamt_i; 
+                        end
+                        `INST_SRLI_SRAI:  begin
+                            if (ex_funct7_i[5] & ~ex_funct7_i[0]) begin
+                                ex_rd_reg_data_o = $signed(ex_rs1_reg_data_i) >>> ex_shamt_i[4:0];
+                            end else if(~ex_funct7_i[5] & ~ex_funct7_i[0]) begin
+                                ex_rd_reg_data_o = ex_rs1_reg_data_i >> ex_shamt_i[4:0];
+                            end else begin
+                                ex_rd_reg_data_o = `ZeroWord;
+                            end
+                        end
+                        default: begin  
+                        end
+                    endcase
+                end
+                // 所有LOAD/SAVE指令读取存储器数据全部交由mem模块处理，ex模块只负责计算存储器地址
+                `INST_TYPE_L, `INST_TYPE_S: begin
+                    ex_data_ram_addr_o = rs1_plus_imm;
+                    // 为满足冯诺依曼结构的指令测试序列，增加一个相当于单存储器的操作需求，否则后续save后读取不能实现
+                    ex_inst_rom_addr_o = rs1_plus_imm;
+                end
 
-            `INST_TYPE_R_M: begin
-                case(ex_funct3_i)
-                    `INST_ADD_SUB:    begin
-                        ex_rd_reg_data_o = ex_funct7_i[5] ? (ex_rs1_reg_data_i - ex_rs2_reg_data_i) : (ex_rs1_reg_data_i + ex_rs2_reg_data_i);
-                        
-                    end
-                    // sll rd, rs1, rs2; x[rd] = x[rs1] << x[rs2]([4:0](RV32I),[5:0](RV64I))
-                    `INST_SLL:    begin
-                        ex_rd_reg_data_o = ex_rs1_reg_data_i << ex_rs2_reg_data_i[4:0];
-                        
-                    end
-                    `INST_SLT:    begin
-                        ex_rd_reg_data_o = ($signed(ex_rs1_reg_data_i) < $signed(ex_rs2_reg_data_i)) ? 1 : 0;
-                        
-                    end
-                    `INST_SLTU:    begin
-                        ex_rd_reg_data_o = (ex_rs1_reg_data_i < ex_rs2_reg_data_i) ? 1 : 0;
-                        
-                    end
-                    `INST_XOR:    begin
-                        ex_rd_reg_data_o = ex_rs1_reg_data_i ^ ex_rs2_reg_data_i;
-                        
-                    end
-                    `INST_SRA_SRL:    begin
-                        // ex_rd_reg_data_o = ex_funct7_i[5] ? 
-                        //                     $signed(($signed(ex_rs1_reg_data_i)) >>> ex_rs2_reg_data_i[4:0]): 
-                        //                     (ex_rs1_reg_data_i >> ex_rs2_reg_data_i[4:0]);
-                        if (ex_funct7_i[5]) begin
-                            ex_rd_reg_data_o = $signed(ex_rs1_reg_data_i) >>> ex_rs2_reg_data_i[4:0];
-                        end else begin
-                            ex_rd_reg_data_o = ex_rs1_reg_data_i >> ex_rs2_reg_data_i[4:0];
+                `INST_TYPE_R_M: begin
+                    case(ex_funct3_i)
+                        `INST_ADD_SUB:    begin
+                            ex_rd_reg_data_o = ex_funct7_i[5] ? (ex_rs1_reg_data_i - ex_rs2_reg_data_i) : (ex_rs1_reg_data_i + ex_rs2_reg_data_i);
+                            
                         end
-                        
-                    end
-                    `INST_OR:    begin
-                        ex_rd_reg_data_o = ex_rs1_reg_data_i | ex_rs2_reg_data_i;
-                        
-                    end
-                    `INST_AND:    begin
-                        ex_rd_reg_data_o = ex_rs1_reg_data_i & ex_rs2_reg_data_i;
-                        
-                    end
-                    default:    begin
-                        
-                    end
-                endcase
-            end
-            // special J type inst --- begin
-            `INST_JAL: begin
-                ex_rd_reg_data_o = ex_pc_i + 4;
-                ex_pc_jump_o = ex_pc_i + $signed(ex_imm_i);
-            end
-            `INST_JALR: begin
-                ex_rd_reg_data_o = ex_pc_i + 4;
-                ex_pc_jump_o = ex_rs1_reg_data_i +$signed(ex_imm_i);
-            end
-            // special J type inst --- end
-            // special U type inst --- begin
-            `INST_LUI:  begin
-                ex_rd_reg_data_o = ex_imm_i & 32'hffff_f000;
+                        // sll rd, rs1, rs2; x[rd] = x[rs1] << x[rs2]([4:0](RV32I),[5:0](RV64I))
+                        `INST_SLL:    begin
+                            ex_rd_reg_data_o = ex_rs1_reg_data_i << ex_rs2_reg_data_i[4:0];
+                            
+                        end
+                        `INST_SLT:    begin
+                            ex_rd_reg_data_o = ($signed(ex_rs1_reg_data_i) < $signed(ex_rs2_reg_data_i)) ? 1 : 0;
+                            
+                        end
+                        `INST_SLTU:    begin
+                            ex_rd_reg_data_o = (ex_rs1_reg_data_i < ex_rs2_reg_data_i) ? 1 : 0;
+                            
+                        end
+                        `INST_XOR:    begin
+                            ex_rd_reg_data_o = ex_rs1_reg_data_i ^ ex_rs2_reg_data_i;
+                            
+                        end
+                        `INST_SRA_SRL:    begin
+                            // ex_rd_reg_data_o = ex_funct7_i[5] ? 
+                            //                     $signed(($signed(ex_rs1_reg_data_i)) >>> ex_rs2_reg_data_i[4:0]): 
+                            //                     (ex_rs1_reg_data_i >> ex_rs2_reg_data_i[4:0]);
+                            if (ex_funct7_i[5]) begin
+                                ex_rd_reg_data_o = $signed(ex_rs1_reg_data_i) >>> ex_rs2_reg_data_i[4:0];
+                            end else begin
+                                ex_rd_reg_data_o = ex_rs1_reg_data_i >> ex_rs2_reg_data_i[4:0];
+                            end
+                            
+                        end
+                        `INST_OR:    begin
+                            ex_rd_reg_data_o = ex_rs1_reg_data_i | ex_rs2_reg_data_i;
+                            
+                        end
+                        `INST_AND:    begin
+                            ex_rd_reg_data_o = ex_rs1_reg_data_i & ex_rs2_reg_data_i;
+                            
+                        end
+                        default:    begin
+                            
+                        end
+                    endcase
+                end
+                // special J type inst --- begin
+                `INST_JAL: begin
+                    ex_rd_reg_data_o = ex_pc_i + 4;
+                    ex_pc_jump_o = ex_pc_i + $signed(ex_imm_i);
+                end
+                `INST_JALR: begin
+                    ex_rd_reg_data_o = ex_pc_i + 4;
+                    ex_pc_jump_o = ex_rs1_reg_data_i +$signed(ex_imm_i);
+                end
+                // special J type inst --- end
+                // special U type inst --- begin
+                `INST_LUI:  begin
+                    ex_rd_reg_data_o = ex_imm_i & 32'hffff_f000;
+                    
+                end
+                `INST_AUIPC:    begin
+                    ex_rd_reg_data_o = ex_pc_i + (ex_imm_i & 32'hffff_f000);
+                end
+                // special U type inst --- end
+                `INST_TYPE_B:   begin
+                    case(ex_funct3_i)
+                        `INST_BEQ:  begin
+                            ex_pc_jump_o = (ex_rs1_reg_data_i == ex_rs2_reg_data_i) ? (ex_pc_i + $signed(ex_imm_i)) : ex_pc_i;
+                        end
+                        `INST_BNE:  begin
+                            ex_pc_jump_o = (ex_rs1_reg_data_i != ex_rs2_reg_data_i) ? (ex_pc_i + $signed(ex_imm_i)) : ex_pc_i;
+                        end
+                        `INST_BLT:  begin
+                            ex_pc_jump_o = ($signed(ex_rs1_reg_data_i) < $signed(ex_rs2_reg_data_i)) ? (ex_pc_i + $signed(ex_imm_i)) : ex_pc_i;
+                        end
+                        `INST_BGE:  begin
+                            ex_pc_jump_o = ($signed(ex_rs1_reg_data_i) >= $signed(ex_rs2_reg_data_i)) ? (ex_pc_i + $signed(ex_imm_i)) : ex_pc_i;
+                        end
+                        `INST_BLTU: begin
+                            ex_pc_jump_o = (ex_rs1_reg_data_i < ex_rs2_reg_data_i) ? (ex_pc_i + $signed(ex_imm_i)) : ex_pc_i;
+                        end
+                        `INST_BGEU: begin
+                            ex_pc_jump_o = (ex_rs1_reg_data_i >= ex_rs2_reg_data_i) ? (ex_pc_i + $signed(ex_imm_i)) : ex_pc_i;
+                        end
+                        default:    begin
+                            
+                        end
+                    endcase
+                end
                 
-            end
-            `INST_AUIPC:    begin
-                ex_rd_reg_data_o = ex_pc_i + (ex_imm_i & 32'hffff_f000);
+                // CSR INST
+                `INST_CSR:  begin
+                    ex_csr_raddr_o = ex_csr_addr_i;
+                    case (ex_funct3_i)
+                        `INST_CSRRW:    begin
+                            t = ex_csr_rdata_i;
+                            ex_csr_wdata_o = ex_rs1_reg_data_i;
+                            ex_rd_reg_data_o = t;
+                        end 
+                        `INST_CSRRS:    begin
+                            t = ex_csr_rdata_i;
+                            ex_csr_wdata_o = t | ex_rs1_reg_data_i;
+                            ex_rd_reg_data_o = t;
+                        end
+                        `INST_CSRRC:    begin
+                            t = ex_csr_rdata_i;
+                            ex_csr_wdata_o = t & ~ex_rs1_reg_data_i;
+                            ex_rd_reg_data_o = t;
+                        end
+                        `INST_CSRRWI:   begin
+                            ex_rd_reg_data_o = ex_csr_rdata_i;
+                            ex_csr_wdata_o = {27'h0, ex_zimm_i};
+                        end
+                        `INST_CSRRSI:   begin
+                            t = ex_csr_rdata_i;
+                            ex_csr_wdata_o = t | {27'h0, ex_zimm_i};
+                            ex_rd_reg_data_o = t;
+                        end
+                        `INST_CSRRCI:   begin
+                            t = ex_csr_rdata_i;
+                            ex_csr_wdata_o = t & ~{27'h0, ex_zimm_i};
+                            ex_rd_reg_data_o = t;
+                        end
+                        default:    begin
+                            
+                        end
+                    endcase
+                end
+
+            
+
+                // fence type inst
+                `INST_TYPE_FENCE: begin
+                    case (ex_funct3_i)
+                        `INST_FENCE:    begin
+                            
+                        end
+                        `INST_FENCE_I:  begin
+                            ex_pc_jump_o = ex_pc_i + 32'h4;
+                        end
+                        default: begin
+                    
+                        end
+                    endcase
+                end
+
+                default : begin
                 
-            end
-            // special U type inst --- end
-            `INST_TYPE_B:   begin
-                case(ex_funct3_i)
-                    `INST_BEQ:  begin
-                        ex_pc_jump_o = (ex_rs1_reg_data_i == ex_rs2_reg_data_i) ? (ex_pc_i + $signed(ex_imm_i)) : ex_pc_i;
-                    end
-                    `INST_BNE:  begin
-                        ex_pc_jump_o = (ex_rs1_reg_data_i != ex_rs2_reg_data_i) ? (ex_pc_i + $signed(ex_imm_i)) : ex_pc_i;
-                    end
-                    `INST_BLT:  begin
-                        ex_pc_jump_o = ($signed(ex_rs1_reg_data_i) < $signed(ex_rs2_reg_data_i)) ? (ex_pc_i + $signed(ex_imm_i)) : ex_pc_i;
-                    end
-                    `INST_BGE:  begin
-                        ex_pc_jump_o = ($signed(ex_rs1_reg_data_i) >= $signed(ex_rs2_reg_data_i)) ? (ex_pc_i + $signed(ex_imm_i)) : ex_pc_i;
-                    end
-                    `INST_BLTU: begin
-                        ex_pc_jump_o = (ex_rs1_reg_data_i < ex_rs2_reg_data_i) ? (ex_pc_i + $signed(ex_imm_i)) : ex_pc_i;
-                    end
-                    `INST_BGEU: begin
-                        ex_pc_jump_o = (ex_rs1_reg_data_i >= ex_rs2_reg_data_i) ? (ex_pc_i + $signed(ex_imm_i)) : ex_pc_i;
-                    end
-                    default:    begin
-                        
-                    end
-                endcase
-            end
-            // CSR INST
-            `INST_CSR:  begin
-                case (ex_funct3_i)
-                    `INST_CSRRW:    begin
-                        ex_csr_addr_o = ex_csr_addr_i;
-                        t = ex_csr_rdata_i;
-                        ex_csr_wdata_o = ex_rs1_reg_data_i;
-                        ex_rd_reg_data_o = t;
-                    end 
-                    `INST_CSRRS:    begin
-                        ex_csr_addr_o = ex_csr_addr_i;
-                        t = ex_csr_rdata_i;
-                        ex_csr_wdata_o = t | ex_rs1_reg_data_i;
-                        ex_rd_reg_data_o = t;
-                    end
-                    `INST_CSRRC:    begin
-                        ex_csr_addr_o = ex_csr_addr_i;
-                        t = ex_csr_rdata_i;
-                        ex_csr_wdata_o = t & ~ex_rs1_reg_data_i;
-                        ex_rd_reg_data_o = t;
-                    end
-                    `INST_CSRRWI:   begin
-                        ex_csr_addr_o = ex_csr_addr_i;
-                        ex_rd_reg_data_o = ex_csr_rdata_i;
-                        ex_csr_wdata_o = {27'h0, ex_zimm_i};
-                    end
-                    `INST_CSRRSI:   begin
-                        ex_csr_addr_o = ex_csr_addr_i;
-                        t = ex_csr_rdata_i;
-                        ex_csr_wdata_o = t | {27'h0, ex_zimm_i};
-                        ex_rd_reg_data_o = t;
-                    end
-                    `INST_CSRRCI:   begin
-                        ex_csr_addr_o = ex_csr_addr_i;
-                        t = ex_csr_rdata_i;
-                        ex_csr_wdata_o = t & ~{27'h0, ex_zimm_i};
-                        ex_rd_reg_data_o = t;
-                    end
-                    default:    begin
-                        
-                    end
-                endcase
-            end
-            // fence type inst
-            `INST_TYPE_FENCE: begin
-                case (ex_funct3_i)
-                    `INST_FENCE:    begin
-                        
-                    end
-                    `INST_FENCE_I:  begin
-                        ex_pc_jump_o = ex_pc_i + 32'h4;
-                    end
-                endcase
-            end
-            default: begin
+                end
                 
-            end
-        endcase
-    end
+            endcase
+
+        end : ex_opcode_process
+
+    end : ex_core
 
     
 
-
-    
+  
 endmodule

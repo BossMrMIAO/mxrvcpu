@@ -136,11 +136,6 @@ module soc_core_top (
     wire[`RegBusPort]           wb_regu_rd_reg_data;
     wire                        wb_regu_rd_wr_en;
 
-    // ex ---> regu
-    wire                        ex_regu_rd_wr_en;
-    wire[`PORT_REG_ADDR_WIDTH]  ex_regu_rd_addr;
-    wire[`RegBusPort]           ex_regu_rd_reg_data;
-
     // ex ---> ctrl            
     wire                        ex_ctrl_pc_jump_flag;
     wire[`PORT_ADDR_WIDTH]      ex_ctrl_pc_jump;
@@ -329,13 +324,13 @@ module soc_core_top (
         .ex_mem_opcode_o(ex_ex_mem_dff_opcode_bef),
         .ex_mem_funct3_o(ex_ex_mem_dff_funct3_bef),
         .ex_mem_rs2_reg_data_o(ex_ex_mem_dff_rs2_reg_data_bef),
-        .ex_csr_wr_en_o(),
-        .ex_csr_addr_o(),
-        .ex_csr_wdata_o(),
-        .ex_csr_rdata_i(), 
-        .ex_csr_inst_succ_flag_o(),
-        .ex_hold_flag_o(),
-        .ex_div_busy_i()
+        // .ex_csr_wr_en_o(),
+        // .ex_csr_addr_o(),
+        // .ex_csr_wdata_o(),
+        // .ex_csr_rdata_i(), 
+        // .ex_csr_inst_succ_flag_o(),
+        .ex_hold_flag_o(ex_ctrl_pc_hold_flag)
+        // .ex_div_busy_i()
       );
 
     ex_mem_dff  ex_mem_dff_inst (
@@ -444,15 +439,22 @@ module soc_core_top (
         .data_ram_wr_en_i(mem_data_ram_wr_en),
         .data_ram_rd_data_o(data_ram_mem_rd_data)
       );
-    
+
     csr_reg  csr_reg_inst (
         .clk(clk),
         .rst_n(rst_n),
-        .csr_addr_i(ex_csr_reg_addr),
+        .csr_waddr_i(ex_csr_reg_addr),
+        .csr_raddr_i(ex_csr_reg_addr),
         .csr_we_i(ex_csr_reg_wr_en),
         .csr_wdata_i(ex_csr_reg_wdata),
         .csr_rdata_o(ex_csr_reg_rdata),
-        .csr_inst_succ_flag_i(ex_csr_reg_inst_succ_flag)
+        .csr_inst_succ_flag_i(ex_csr_reg_inst_succ_flag),
+        .csr_addr_conflict1_i(),
+        .csr_data_conflict1_i(),
+        .csr_wr_en_conflict1_i(),
+        .csr_addr_conflict2_i(),
+        .csr_data_conflict2_i(),
+        .csr_wr_en_conflict2_i()
       );
 
 

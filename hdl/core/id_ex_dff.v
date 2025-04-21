@@ -77,9 +77,9 @@ module id_ex_dff #(
     (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),.hold_flag(id_ex_dff_pipeline_hold_flag),
     .zero_point({`REG_ADDR_WIDTH{1'b0}}),.d(id_ex_dff_shamt_i),.q(id_ex_dff_shamt_o));
 
-    s_bits_dff #(.bits_width(`REG_ADDR_WIDTH)) u_s_bits_dff_zimm
+    s_bits_dff #(.bits_width(`WORD_WIDTH)) u_s_bits_dff_zimm
     (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),.hold_flag(id_ex_dff_pipeline_hold_flag),
-    .zero_point({`REG_ADDR_WIDTH{1'b0}}),.d(id_ex_dff_zimm_i),.q(id_ex_dff_zimm_o));
+    .zero_point({`WORD_WIDTH{1'b0}}),.d(id_ex_dff_zimm_i),.q(id_ex_dff_zimm_o));
 
     s_bits_dff #(.bits_width(`WORD_WIDTH)) u_s_bits_dff_imm
     (.clk(clk),.rst_n(rst_n),.flush_flag(id_ex_dff_pipeline_flush_flag),.hold_flag(id_ex_dff_pipeline_hold_flag),

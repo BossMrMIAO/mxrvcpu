@@ -25,7 +25,7 @@ module pc_reg (
 
     assign pc_reg_pc_o = pc_reg_r;
 
-    always @(posedge clk) begin
+    always @(posedge clk or negedge rst_n) begin
         // 复位
         if(!rst_n) begin
             pc_reg_r <= 0;

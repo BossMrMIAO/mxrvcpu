@@ -50,6 +50,7 @@ module id (
             id_shamt_o = `Disable;
             id_zimm_o = `Disable;
             id_imm_o = `Disable;
+            id_csr_addr_o = `Disable;
             id_err_o = `Enable;
         end
         else begin

@@ -34,7 +34,6 @@ module ctrl (
 
     assign ctrl_pipeline_flush_flag_o = ctrl_pc_jump_flag_i;
     assign ctrl_pc_jump_o = ctrl_pc_jump_i;
-    assign ctrl_pipeline_hold_flag_o = ctrl_pc_hold_flag_i;
 
     assign hold_1_cycle_case1 = (ctrl_ex_opcode_i == `INST_TYPE_L) && 
                                 (ctrl_ex_rd_addr_i == ctrl_id_rs1_addr_i || 
@@ -49,6 +48,6 @@ module ctrl (
         end
     end
     
-    assign ctrl_pipeline_hold_flag_o = hold_1_cycle_case1 & ~hold_1_cycle_case2;
+    assign ctrl_pipeline_hold_flag_o = ctrl_pc_hold_flag_i | (hold_1_cycle_case1 & ~hold_1_cycle_case2);
 
 endmodule

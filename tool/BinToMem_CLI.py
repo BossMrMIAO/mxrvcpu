@@ -37,6 +37,7 @@ def bin_to_mem(infile, outfile):
     datafile.close()
 
 
+
 if __name__ == '__main__':
     if len(sys.argv) == 3:
         bin_to_mem(sys.argv[1], sys.argv[2])

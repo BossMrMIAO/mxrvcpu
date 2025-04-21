@@ -39,9 +39,24 @@ module mem (
     output[`PORT_ADDR_WIDTH]       mem_inst_rom_addr_o,
     output reg[`PORT_DATA_WIDTH]   mem_inst_rom_wr_data_o,
 
+    // mem原则上不去读写csr寄存器，其来源值由ex访问csr寄存器得到，mem阶段负责基本指令数据的分配，写入由wb模块执行
+    // 这里的接口要么来自ex读取完毕的csr寄存器值，要么给wb用于写入csr寄存器
+    output                         mem_csr_wr_en_o,
+    input[`CsrRegAddrBusPort]      mem_csr_addr_i,
+    output reg[`CsrRegAddrBusPort] mem_csr_addr_o,
+    output reg[`RegBusPort]        mem_csr_wdata_o,
+    input[`RegBusPort]             mem_csr_rdata_i,
+    // CSR指令需要的参数
+    input[`RegBusPort]             mem_rs1_reg_data_i,
+    input[`PORT_WORD_WIDTH]        mem_zimm_i,
+
+
     // 写指令需要的rs2_reg_data信号
     input[`RegBusPort]             mem_rs2_reg_data_i
 );
+
+    // 用于csrrw指令和csrrs等指令的暂存
+    reg[`RegBusPort]        t;
 
     wire[`PORT_ADDR_WIDTH] mem_addr_r;
     wire[`PORT_DATA_WIDTH] mem_data_r;
@@ -178,6 +193,51 @@ module mem (
                     end
                 endcase
             end
+            
+            // CSR INST
+            `INST_CSR:  begin
+                case (mem_funct3_i)
+                    `INST_CSRRW:    begin
+                        mem_csr_addr_o = mem_csr_addr_i;
+                        t = mem_csr_rdata_i;
+                        mem_csr_wdata_o = mem_rs1_reg_data_i;//rs1的值由mem获得，不对这里应当由id译码部分获得
+                        mem_rd_reg_data_o = t;
+                    end 
+                    `INST_CSRRS:    begin
+                        mem_csr_addr_o = mem_csr_addr_i;
+                        t = mem_csr_rdata_i;
+                        mem_csr_wdata_o = t | mem_rs1_reg_data_i;
+                        mem_rd_reg_data_o = t;
+                    end
+                    `INST_CSRRC:    begin
+                        mem_csr_addr_o = mem_csr_addr_i;
+                        t = mem_csr_rdata_i;
+                        mem_csr_wdata_o = t & ~mem_rs1_reg_data_i;
+                        mem_rd_reg_data_o = t;
+                    end
+                    `INST_CSRRWI:   begin
+                        mem_csr_addr_o = mem_csr_addr_i;
+                        mem_rd_reg_data_o = mem_csr_rdata_i;
+                        mem_csr_wdata_o = {27'h0, mem_zimm_i};
+                    end
+                    `INST_CSRRSI:   begin
+                        mem_csr_addr_o = mem_csr_addr_i;
+                        t = mem_csr_rdata_i;
+                        mem_csr_wdata_o = t | {27'h0, mem_zimm_i};
+                        mem_rd_reg_data_o = t;
+                    end
+                    `INST_CSRRCI:   begin
+                        mem_csr_addr_o = mem_csr_addr_i;
+                        t = mem_csr_rdata_i;
+                        mem_csr_wdata_o = t & ~{27'h0, mem_zimm_i};
+                        mem_rd_reg_data_o = t;
+                    end
+                    default:    begin
+                        
+                    end
+                endcase
+            end
+
             default : begin
                 // 其他指令不需要特殊处理,其写入寄存器的值由ex阶段传递过来
                 mem_rd_reg_data_o = mem_rd_reg_data_i;
@@ -185,8 +245,9 @@ module mem (
                 mem_rd_wr_en_o = mem_rd_wr_en_i;
             end
         endcase
-               
-    end
+
+        
+    end            
 
 
 endmodule

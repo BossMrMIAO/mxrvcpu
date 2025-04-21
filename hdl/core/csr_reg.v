@@ -14,21 +14,37 @@ module csr_reg (
     input rst_n,
     
     // 读写寄存器一套接口
-    input[`CsrRegAddrBusPort] csr_addr_i,
+    input[`CsrRegAddrBusPort] csr_waddr_i,
+    input[`CsrRegAddrBusPort] csr_raddr_i,
     input   csr_we_i,
     input[`RegBusPort]  csr_wdata_i,
     output reg[`RegBusPort] csr_rdata_o,
     // 状态寄存器必要信号
-    input   csr_inst_succ_flag_i
+    input   csr_inst_succ_flag_i,
+
+
+    // CSR寄存器读写冲突逻辑
+    // 冲突地址1，可以连接到csr寄存器的csr地址，代表与上一条指令的数据冲突,z自当优先相应
+    input[`CsrRegAddrBusPort]       csr_addr_conflict1_i,
+    input[`RegBusPort]              csr_data_conflict1_i,
+    input                           csr_wr_en_conflict1_i,
+
+    // 冲突地址2，可以连接到mem的rd地址, 代表与倒数第二条指令的冲突
+    input[`CsrRegAddrBusPort]       csr_addr_conflict2_i,
+    input[`RegBusPort]              csr_data_conflict2_i,
+    input                           csr_wr_en_conflict2_i
     );
 
-    // 浮点累计异常
+    // 浮点累计异常, RO
     reg[`RegBusPort] fflags;
-    // 浮点动态舍入模式
+    // 浮点动态舍入模式, RW
     reg[`RegBusPort] frm;
-    // 浮点控制状态寄存器
+    // 浮点控制状态寄存器, RO
     reg[`RegBusPort] fcsr;
-    // 机器模式下状态寄存器
+
+    // 如下必选寄存器
+
+    // 机器模式下状态寄存器, RW
     reg[`RegBusPort] mstatus;
     // 指示当前处理器支持架构特性
     reg[`RegBusPort] misa;
@@ -46,6 +62,9 @@ module csr_reg (
     reg[`RegBusPort] mtval;
     // 查询终端等待状态
     reg[`RegBusPort] mip;
+
+    // 如下只读寄存器，只反映状态
+
     // 反应处理器执行了多少个时钟，共64位
     wire[`RegBusPort] mcycle;
     wire[`RegBusPort] mcycleh;
@@ -101,7 +120,7 @@ module csr_reg (
         end
     end
 
-    // 读写寄存器逻辑
+    // 写寄存器逻辑
     // 初始化所有CSR寄存器，需要同步时钟，复位，写请求有效，CSR寄存器地址，写数据
     // we_i为`Read状态时为读，在下个周期返回数据到总线上
     // 同步时钟，复位，读寄存器地址，输出读数据
@@ -111,7 +130,9 @@ module csr_reg (
             fflags <= `ZeroWord;
             frm <= `ZeroWord;
             fcsr <= `ZeroWord;
+            // 必要寄存器初始化
             mstatus <= `ZeroWord;
+            // mstatus[0] = 1; // MIE, 全局中断使能
             mie <= `ZeroWord;
             mtvec <= `ZeroWord;
             mscratch <= `ZeroWord;
@@ -131,116 +152,66 @@ module csr_reg (
             csr_rdata_o <= `ZeroWord;
         end else begin
             if (csr_we_i == `Write) begin
-                case (csr_addr_i)
-                    `CSR_FFLAGS: begin
-                        fflags <= csr_wdata_i;
-                    end
-                    `CSR_FRM: begin
-                        frm <= csr_wdata_i;
-                    end
-                    `CSR_FCSR: begin
-                        fcsr <= csr_wdata_i;
-                    end
-                    `CSR_MSTATUS: begin
-                        mstatus <= csr_wdata_i;
-                    end
-                    `CSR_MIE: begin
-                        mie <= csr_wdata_i;
-                    end
-                    `CSR_MTVEC: begin
-                        mtvec <= csr_wdata_i;
-                    end
-                    `CSR_MSCRATCH: begin
-                        mscratch <= csr_wdata_i;
-                    end
-                    `CSR_MEPC: begin
-                        mepc <= csr_wdata_i;
-                    end
-                    `CSR_MCAUSE: begin
-                        mcause <= csr_wdata_i;
-                    end
-                    `CSR_MTVAL: begin
-                        mtval <= csr_wdata_i;
-                    end
-                    `CSR_MIP: begin
-                        mip <= csr_wdata_i;
-                    end
-                    default: begin
-                        csr_rdata_o <= `ErrorWord;
-                    end
-                endcase
-            end else begin
-                case (csr_addr_i)
-                    `CSR_FFLAGS: begin
-                        csr_rdata_o <= fflags;
-                    end
-                    `CSR_FRM: begin
-                        csr_rdata_o <= frm;
-                    end
-                    `CSR_FCSR: begin
-                        csr_rdata_o <= fcsr;
-                    end
-                    `CSR_MSTATUS: begin
-                        csr_rdata_o <= mstatus;
-                    end
-                    `CSR_MISA: begin
-                        csr_rdata_o <= misa;
-                    end
-                    `CSR_MIE: begin
-                        csr_rdata_o <= mie;
-                    end
-                    `CSR_MTVEC: begin
-                        csr_rdata_o <= mtvec;
-                    end
-                    `CSR_MSCRATCH: begin
-                        csr_rdata_o <= mscratch;
-                    end
-                    `CSR_MEPC: begin
-                        csr_rdata_o <= mepc;
-                    end
-                    `CSR_MCAUSE: begin
-                        csr_rdata_o <= mcause;
-                    end
-                    `CSR_MTVAL: begin
-                        csr_rdata_o <= mtval;
-                    end
-                    `CSR_MIP: begin
-                        csr_rdata_o <= mip;
-                    end
-                    `CSR_MCYCLE: begin
-                        csr_rdata_o <= mcycle;
-                    end
-                    `CSR_MCYCLEH: begin
-                        csr_rdata_o <= mcycleh;
-                    end
-                    `CSR_MINSTRET: begin
-                        csr_rdata_o <= minstret;
-                    end
-                    `CSR_MINSTRETH: begin
-                        csr_rdata_o <= minstreth;
-                    end
-                    `CSR_MVENDORID: begin
-                        csr_rdata_o <= mvendorid;
-                    end
-                    `CSR_MARCHID: begin
-                        csr_rdata_o <= marchid;
-                    end
-                    `CSR_MIMPID: begin
-                        csr_rdata_o <= mimpid;
-                    end
-                    `CSR_MHARTID: begin
-                        csr_rdata_o <= mhartid;
-                    end
-
-
-                    
-                    default: begin
-                        csr_rdata_o <= `ErrorWord;
-                    end
+                case (csr_waddr_i)
+                    // RW Registers
+                    `CSR_FFLAGS:    fflags <= csr_wdata_i;
+                    `CSR_FRM:       frm <= csr_wdata_i;    
+                    `CSR_FCSR:      fcsr <= csr_wdata_i;
+                    `CSR_MSTATUS:   mstatus <= csr_wdata_i;
+                    `CSR_MIE:       mie <= csr_wdata_i;
+                    `CSR_MTVEC:     mtvec <= csr_wdata_i;
+                    `CSR_MSCRATCH:  mscratch <= csr_wdata_i;
+                    `CSR_MEPC:      mepc <= csr_wdata_i;
+                    `CSR_MCAUSE:    mcause <= csr_wdata_i;
+                    `CSR_MTVAL:     mtval <= csr_wdata_i;
+                    `CSR_MIP:       mip <= csr_wdata_i;
+                    default:        csr_rdata_o <= `ErrorWord;
                 endcase
             end
         end
     end
 
+
+    // 读寄存器逻辑
+    always @(*) begin
+        if(rst_n == `RstEnable) begin
+            csr_rdata_o = `ZeroWord;
+        end else begin // 寄希望于软件配置指令完全正确，否则想非法地址写指令再去读，那么读取就真的错误了
+            if (csr_wr_en_conflict1_i && csr_addr_conflict1_i == csr_raddr_i) begin
+                csr_rdata_o = csr_data_conflict1_i;
+            end else if (csr_wr_en_conflict2_i && csr_addr_conflict2_i == csr_raddr_i) begin
+                csr_rdata_o = csr_data_conflict2_i;
+            end else if (csr_we_i && csr_waddr_i == csr_raddr_i) begin
+                csr_rdata_o = csr_wdata_i;
+            end else begin
+                case (csr_raddr_i)
+                    // RW Registers
+                    `CSR_FFLAGS:    csr_rdata_o = fflags;
+                    `CSR_FRM:       csr_rdata_o = frm;   
+                    `CSR_FCSR:      csr_rdata_o = fcsr;
+                    `CSR_MSTATUS:   csr_rdata_o = mstatus;
+                    `CSR_MIE:       csr_rdata_o = mie;
+                    `CSR_MTVEC:     csr_rdata_o = mtvec;
+                    `CSR_MSCRATCH:  csr_rdata_o = mscratch;
+                    `CSR_MEPC:      csr_rdata_o = mepc;
+                    `CSR_MCAUSE:    csr_rdata_o = mcause;
+                    `CSR_MTVAL:     csr_rdata_o = mtval;
+                    `CSR_MIP:       csr_rdata_o = mip;
+                    // R Registers
+                    `CSR_MCYCLE:    csr_rdata_o = mcycle;
+                    `CSR_MCYCLEH:   csr_rdata_o = mcycleh;
+                    `CSR_MINSTRET:  csr_rdata_o = minstret;
+                    `CSR_MINSTRETH: csr_rdata_o = minstreth;
+                    `CSR_MVENDORID: csr_rdata_o = mvendorid;
+                    `CSR_MARCHID:   csr_rdata_o = marchid;
+                    `CSR_MIMPID:    csr_rdata_o = mimpid;
+                    `CSR_MHARTID:   csr_rdata_o = mhartid;
+                    default:        csr_rdata_o = `ErrorWord;
+                endcase
+            end
+        end       
+    end
+
+    //
     
 endmodule

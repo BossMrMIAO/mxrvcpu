@@ -17,7 +17,18 @@ module wb (
     
     output wire wb_rd_wr_en_o,
     output wire [`PORT_REG_ADDR_WIDTH] wb_rd_addr_o,
-    output wire [`RegBusPort] wb_rd_reg_data_o
+    output wire [`RegBusPort] wb_rd_reg_data_o,
+
+    // CSR instuction read and write
+    input                               wb_csr_wr_en_i,
+    input reg[`CsrRegAddrBusPort]       wb_csr_addr_i,
+    input reg[`RegBusPort]              wb_csr_wdata_i,
+
+    output                              wb_csr_wr_en_o,
+    output wire[`CsrRegAddrBusPort]      wb_csr_addr_o,
+    output wire[`RegBusPort]             wb_csr_wdata_o,
+
+    output                              wb_csr_inst_succ_flag_o
 
 );
 
@@ -26,6 +37,11 @@ module wb (
     assign wb_rd_wr_en_o = wb_rd_wr_en_i;
     assign wb_rd_addr_o = wb_rd_addr_i;
     assign wb_rd_reg_data_o = wb_rd_reg_data_i;
+
+    // Write-back data selection for CSR
+    assign wb_csr_wr_en_o = wb_csr_wr_en_i;
+    assign wb_csr_addr_o = wb_csr_addr_i;
+    assign wb_csr_wdata_o = wb_csr_wdata_i;
 
 
 endmodule
